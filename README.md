@@ -1,37 +1,37 @@
 # SkillSight
 
-AI-powered workforce skills intelligence platform mapping capabilities, succession risk, and development paths across Schwan's plants and offices.
+A simple tool that shows what skills Schwan's employees have, where skills are missing, and where a critical skill is known by too few people.
 
 Built for **Southwest MN Hacks 2026** — Schwan's Prompt 01: *Talent Readiness & Skills Intelligence Platform* (+ Bonus: RFID/QR/LED Interactive System).
 
 ## The Problem
 
-Schwan's runs 16 production plants and 3 corporate offices with distinct workforce segments (Manufacturing & Logistics, Retail Sales & Distribution, Foodservice Sales, Corporate). Leaders lack a single view into what skills exist today, where critical knowledge is concentrated in just a few people, and where the biggest readiness gaps are.
+Schwan's has 16 plants and 3 offices, split into 4 job groups (Plant & Warehouse, Retail Sales, Foodservice Sales, Corporate). No single place shows what skills exist today, which skills are rare, or where the biggest gaps are.
 
 ## What SkillSight Does
 
-- **Skills Heat Map** — coverage of key skills per workforce segment, color-coded to surface gaps at a glance.
-- **Succession Risk** — flags skills held by a very small number of people (knowledge-concentration risk), with plant/location context.
-- **Plant Network View** — the full footprint of plants and offices the skills data spans.
+- **Skills Heat Map** — shows how many people in each job group have each skill.
+- **Succession Risk** — lists critical skills known by only a few people, and where.
+- **Plant Network View** — the full list of plants and offices covered.
 
 ## Tech Stack
 
-Vanilla HTML/CSS/JS — no build step, no dependencies. Open `index.html` in a browser to run it.
+Plain HTML, CSS, and JavaScript. No install needed. Open `index.html` in a browser to run it.
 
-## Project Structure
+## Project Files
 
 ```
-index.html      demo UI
+index.html      the app
 style.css       styling
-script.js       rendering logic
-data.js         seed/demo dataset
-PROJECT.md      challenge notes, research, submission tracker
-exports/        draft project brief & pitch deck
+script.js       app logic
+data.js         sample data
+PROJECT.md      challenge notes and research
+exports/        draft project brief and pitch deck
 ```
 
 ## Team
 
-_TBD_
+Ajay Angdembe (solo)
 
 ## License
 
