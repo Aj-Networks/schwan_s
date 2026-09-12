@@ -15,6 +15,7 @@
 
 <nav class="tabs">
   <button class="tab-btn active" data-tab="heatmap">Skills Heat Map</button>
+  <button class="tab-btn" data-tab="gaps">Capability Gaps</button>
   <button class="tab-btn" data-tab="risk">Succession Risk</button>
   <button class="tab-btn" data-tab="plants">Plant Network</button>
 </nav>
@@ -24,6 +25,12 @@
     <h2>Coverage by Workforce Segment</h2>
     <p class="hint">Percent of employees in the segment proficient in each skill. Darker red = lower coverage = bigger gap.</p>
     <div id="heatmap-container"></div>
+  </section>
+
+  <section id="gaps" class="tab-panel">
+    <h2>Greatest Capability Gaps</h2>
+    <p class="hint">Skills below 40% coverage, ranked lowest first — where readiness risk is highest right now.</p>
+    <div id="gaps-container"></div>
   </section>
 
   <section id="risk" class="tab-panel">

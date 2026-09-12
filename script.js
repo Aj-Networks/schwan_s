@@ -42,6 +42,31 @@ function renderHeatmap() {
   container.appendChild(table);
 }
 
+function renderGaps() {
+  const container = document.getElementById("gaps-container");
+  const gaps = [];
+
+  SKILLSIGHT_DATA.segments.forEach(segment => {
+    segment.skills.forEach(s => {
+      if (s.coverage < 40) {
+        gaps.push({ segment: segment.name, skill: s.skill, coverage: s.coverage });
+      }
+    });
+  });
+
+  gaps.sort((a, b) => a.coverage - b.coverage);
+
+  gaps.forEach(g => {
+    const card = document.createElement("div");
+    card.className = "risk-card";
+    card.innerHTML = `
+      <h3>${g.skill}</h3>
+      <div class="meta">${g.segment} • ${g.coverage}% coverage</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
 function renderRisks() {
   const container = document.getElementById("risk-container");
   SKILLSIGHT_DATA.successionRisks.forEach(r => {
@@ -70,5 +95,6 @@ function renderPlants() {
 }
 
 renderHeatmap();
+renderGaps();
 renderRisks();
 renderPlants();
