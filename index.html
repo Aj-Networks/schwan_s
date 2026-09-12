@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillSight — Workforce Skills Intelligence</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>SkillSight</h1>
+  <p>Workforce skills intelligence for Schwan's — heat map, succession risk, and readiness signals across 16 plants and 3 corporate offices.</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="heatmap">Skills Heat Map</button>
+  <button class="tab-btn" data-tab="risk">Succession Risk</button>
+  <button class="tab-btn" data-tab="plants">Plant Network</button>
+</nav>
+
+<main>
+  <section id="heatmap" class="tab-panel active">
+    <h2>Coverage by Workforce Segment</h2>
+    <p class="hint">Percent of employees in the segment proficient in each skill. Darker red = lower coverage = bigger gap.</p>
+    <div id="heatmap-container"></div>
+  </section>
+
+  <section id="risk" class="tab-panel">
+    <h2>Knowledge Concentration &amp; Succession Risk</h2>
+    <p class="hint">Critical skills held by a small number of people. Losing any one of them is a readiness gap.</p>
+    <div id="risk-container"></div>
+  </section>
+
+  <section id="plants" class="tab-panel">
+    <h2>Plant &amp; Office Network</h2>
+    <div id="plants-container"></div>
+  </section>
+</main>
+
+<footer>
+  <p>Southwest MN Hacks 2026 — Schwan's Prompt 01: Talent Readiness &amp; Skills Intelligence Platform. Demo data is fictional; locations are real.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
