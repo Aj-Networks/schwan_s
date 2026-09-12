@@ -20,41 +20,73 @@
 
 body {
   margin: 0;
-  padding: 0 16px 32px;
+  padding: 0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   background: var(--bg);
   color: var(--fg);
 }
 
+main, header, footer, .tabs {
+  max-width: 960px;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
 header {
-  padding: 24px 0 8px;
+  padding: 32px 16px 24px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent), #4a1015);
+  border-radius: 0 0 16px 16px;
 }
 
 header h1 {
   margin: 0;
-  color: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+header .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  font-size: 18px;
 }
 
 header p {
   max-width: 700px;
-  opacity: 0.85;
+  color: #fff;
+  opacity: 0.9;
+  margin-top: 8px;
 }
 
 .tabs {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin: 16px 0;
+  margin: 20px auto 16px;
 }
 
 .tab-btn {
-  padding: 8px 14px;
+  padding: 9px 16px;
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--fg);
-  border-radius: 6px;
+  border-radius: 999px;
   cursor: pointer;
   font-size: 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tab-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
 .tab-btn.active {
@@ -95,16 +127,28 @@ th {
   color: #fff;
   font-weight: 600;
   text-align: center;
+  border-radius: 4px;
+}
+
+table tr {
+  transition: background 0.1s ease;
 }
 
 .risk-card {
   background: var(--card);
   border: 1px solid var(--border);
   border-left: 4px solid var(--accent);
-  border-radius: 6px;
-  padding: 12px 16px;
+  border-radius: 8px;
+  padding: 14px 18px;
   margin-bottom: 12px;
   max-width: 700px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.risk-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
 }
 
 .risk-card h3 {
@@ -128,9 +172,16 @@ th {
 .plant-chip {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: 8px;
+  padding: 10px 14px;
   font-size: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.plant-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
 }
 
 footer {
