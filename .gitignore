@@ -1,0 +1,8 @@
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# internal notes and screenshots, not part of the deliverable
+source/
+gitignore/
