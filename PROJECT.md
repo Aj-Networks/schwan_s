@@ -103,8 +103,8 @@ Per Devpost / event rules, the submission must include:
 | Devpost copy | Done | `SUBMISSION.md` |
 | Screenshots | Done | `screenshots/` |
 | Live demo link | Pending | GitHub Pages, needs the repo to be public |
-| Project brief (.docx) | Draft only | `exports/Schwans_Project_Brief.docx` |
-| Pitch deck (.pptx) | Draft only | `exports/Schwans_Pitch_Deck.pptx` |
+| Project brief (.docx) | Done | `exports/Schwans_Project_Brief.docx` |
+| Pitch deck (.pptx) | Done, 9 slides | `exports/Schwans_Pitch_Deck.pptx` |
 
 ## Build Notes
 
@@ -118,5 +118,4 @@ Per Devpost / event rules, the submission must include:
 ## Open Items
 
 1. Make the repo public and turn on GitHub Pages for a live demo link, or submit with the repo link and a video.
-2. Regenerate the brief and deck in plain language, or drop them from the repo.
-3. Bonus RFID/QR/LED track: only if the organizers have loaner hardware.
+2. Bonus RFID/QR/LED track: only if the organizers have loaner hardware.
