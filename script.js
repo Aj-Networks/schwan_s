@@ -211,6 +211,19 @@ function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 }
 
+// Shown on every list, so a started plan is visible without opening anything.
+// The name and the badge share one flex line, which keeps the badge hugging the
+// name instead of inheriting whatever the surrounding cell does.
+function nameLine(text, skill, extra) {
+  return '<div class="name-line"><span>' + esc(text) + '</span>' +
+    (isPlanStarted(skill) ? '<span class="pill plan">Plan started</span>' : "") +
+    (extra || "") + '</div>';
+}
+
+function planBadge(skill) {
+  return isPlanStarted(skill) ? '<span class="pill plan">Plan started</span>' : "";
+}
+
 function coverageCell(pct) {
   return '<div class="trend"><div class="track"><i style="width:' + pct + '%;background:' + ramp(pct) + '"></i></div>' +
     '<span>' + pct + '%</span></div>';
@@ -228,11 +241,10 @@ function skillRows(rows, listId, showStatus) {
     const lv = level(r.coverage);
     const started = isPlanStarted(r.skill) ? '<span class="pill plan">Plan started</span>' : "";
     return '<tr data-skill="' + esc(r.skill) + '" data-list="' + listId + '">' +
-      '<td class="name">' + esc(r.skill) + '</td>' +
+      '<td class="name">' + nameLine(r.skill, r.skill) + '</td>' +
       '<td class="grp">' + esc(r.segment) + '</td>' +
       '<td>' + coverageCell(r.coverage) + '</td>' +
-      '<td class="num">' + (showStatus ? '<span class="pill ' + lv[0] + '">' + lv[1] + '</span> ' : "") +
-        started + '</td></tr>';
+      '<td class="num">' + (showStatus ? '<span class="pill ' + lv[0] + '">' + lv[1] + '</span>' : "") + '</td></tr>';
   }).join("");
 }
 
@@ -257,7 +269,7 @@ function pageOverview() {
 
   const priority = table("", PRIORITY.map((p, i) =>
     '<tr data-skill="' + esc(p.skill) + '" data-list="priority"><td class="rank">' + (i + 1) + '</td>' +
-    '<td class="name">' + esc(p.skill) +
+    '<td class="name">' + nameLine(p.skill, p.skill) +
       '<div class="why">' + people(p.risk.headcount) + (p.risk.headcount === 1 ? ' holds it' : ' hold it') + ', impact ' + p.risk.impact + ' of 5. ' + esc(p.risk.location) + '</div></td>' +
     '<td class="num"><span class="pill ' + (p.risk.impact >= 5 || p.risk.headcount <= 2 ? "hi" : "md") + '">' +
       people(p.risk.headcount) + '</span></td></tr>').join(""));
@@ -311,7 +323,8 @@ function pageSkills() {
 function pageRisk() {
   const body = RISKS_SORTED.map(r =>
     '<tr data-skill="' + esc(r.skill) + '" data-list="risk">' +
-      '<td class="name">' + esc(r.skill) + '<div class="why">' + esc(r.location) + '</div></td>' +
+      '<td class="name">' + nameLine(r.skill, r.skill) +
+        '<div class="why">' + esc(r.location) + '</div></td>' +
       '<td class="num">' + r.headcount + '</td>' +
       '<td class="num"><span class="pill ' + (r.impact >= 5 ? "hi" : "md") + '">' + r.impact + ' of 5</span></td></tr>').join("");
 
@@ -324,7 +337,8 @@ function pageRisk() {
 function pageFuture() {
   const body = FUTURE_SORTED.map(f =>
     '<tr data-skill="' + esc(f.skill) + '" data-list="future">' +
-      '<td class="name">' + esc(f.skill) + '<div class="why">' + esc(f.driver) + '</div></td>' +
+      '<td class="name">' + nameLine(f.skill, f.skill) +
+        '<div class="why">' + esc(f.driver) + '</div></td>' +
       '<td>' + coverageCell(f.currentCoverage) + '</td>' +
       '<td class="num">' + f.targetCoverage + '%</td>' +
       '<td class="num"><span class="pill md">+' + (f.targetCoverage - f.currentCoverage) + ' pts</span></td></tr>').join("");
@@ -359,7 +373,7 @@ function pagePeople() {
     const row = ALL.find(r => r.skill === skill);
     const cov = row ? row.coverage : null;
     const thin = riskFor(skill);
-    return '<tr data-skill="' + esc(skill) + '" data-list="skills"><td class="name">' + esc(skill) + '</td>' +
+    return '<tr data-skill="' + esc(skill) + '" data-list="skills"><td class="name">' + nameLine(skill, skill) + '</td>' +
       '<td>' + (cov === null ? "" : coverageCell(cov)) + '</td>' +
       '<td class="num">' + (thin ? '<span class="pill hi">1 of ' + thin.headcount + ' here</span>' : "") + '</td></tr>';
   }).join("");
@@ -371,7 +385,7 @@ function pagePeople() {
     if (!a) return "";
     return '<div class="planrow">' +
       '<div class="planrow-h"><b data-skill="' + esc(skill) + '" data-list="skills">' + esc(skill) + '</b>' +
-        '<span class="pill plan">' + esc(a.method) + '</span></div>' +
+        '<span class="pill plan">' + esc(a.method) + '</span>' + planBadge(skill) + '</div>' +
       '<p class="prose">' + esc(a.detail) + '</p>' +
       '<div class="why">' + (fut ? "Needed at " + fut.targetCoverage + " percent by 2027. " + esc(fut.driver)
         : row ? "Only " + row.coverage + " percent of this job group can do it today." : "") + '</div>' +
@@ -395,7 +409,7 @@ function pagePeople() {
         rare.map(r => {
           const pass = actionFor(r.skill) || actionFor(r.skill.split(" - ")[0]);
           return '<div class="planrow"><div class="planrow-h"><b data-skill="' + esc(r.skill) + '" data-list="risk">' +
-            esc(r.skill) + '</b><span class="pill hi">1 of ' + r.headcount + '</span></div>' +
+            esc(r.skill) + '</b><span class="pill hi">1 of ' + r.headcount + '</span>' + planBadge(r.skill) + '</div>' +
             '<p class="prose">You are one of ' + people(r.headcount) + ' at ' +
               esc(r.location.split(" (")[0]) + ' who can do this. ' + esc(r.note) + '</p>' +
             (pass ? '<div class="why">Your step to pass it on: ' + esc(pass.method.toLowerCase()) + '. ' + esc(pass.detail) + '</div>' +
@@ -425,7 +439,7 @@ function pagePlans() {
     const risk = riskFor(skill);
     const a = actionFor(skill) || actionFor(skill.split(" - ")[0]);
     const who = D.employees.filter(e => e.learning.indexOf(skill) > -1 || e.has.indexOf(skill) > -1);
-    return '<tr><td class="name" data-skill="' + esc(skill) + '" data-list="skills">' + esc(skill) +
+    return '<tr><td class="name" data-skill="' + esc(skill) + '" data-list="skills">' + nameLine(skill, skill) +
         '<div class="why">' + (a ? esc(a.method) + ". " : "") +
           (risk ? people(risk.headcount) + ' hold it at ' + esc(risk.location.split(" (")[0]) + '. ' : "") +
           (row ? row.coverage + ' percent coverage today.' : "") + '</div></td>' +
@@ -570,10 +584,24 @@ function pageSkill(name) {
 
 /* ---------- render ---------- */
 
+// How many started plans sit behind each tab, so you can see it from the top
+// without opening the tab, let alone every row inside it.
+function tabStarted(id) {
+  if (id === "people") {
+    return D.employees.filter(e => personPlans(e).done > 0).length;
+  }
+  const list = LISTS[id === "overview" ? "priority" : id];
+  if (!list) return 0;
+  return list.items().filter(isPlanStarted).length;
+}
+
 function renderTabs() {
-  document.getElementById("tabs").innerHTML = TABS.map(t =>
-    '<div class="tab' + (state.tab === t.id ? " on" : "") + '" data-tab="' + t.id + '">' + t.label +
-    (t.count ? '<em>' + t.count + '</em>' : "") + '</div>').join("");
+  document.getElementById("tabs").innerHTML = TABS.map(t => {
+    const done = tabStarted(t.id);
+    return '<div class="tab' + (state.tab === t.id ? " on" : "") + '" data-tab="' + t.id + '">' + t.label +
+      (t.count ? '<em>' + t.count + '</em>' : "") +
+      (done ? '<i class="tick" title="' + done + ' started here">' + done + '</i>' : "") + '</div>';
+  }).join("");
 }
 
 // Ticking a box should visibly do something on the spot, not only on the next render.
