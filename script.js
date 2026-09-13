@@ -98,7 +98,17 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 /* ---------- development plans (challenge question 5) ---------- */
 // Checking the box survives a reload, so the demo carries real state.
 
-const planKey = skill => "skillsight_plan_" + skill;
+// The risk list names skills with a site suffix ("Pizza Line Configuration - Salina")
+// while the skills list uses the base name. Both must save to ONE key, or a plan
+// ticked on the risk page stays invisible everywhere else.
+const SKILL_NAMES = ALL.map(s => s.skill);
+
+function canonicalSkill(name) {
+  const base = name.split(" - ")[0];
+  return SKILL_NAMES.indexOf(base) > -1 ? base : name;
+}
+
+const planKey = skill => "skillsight_plan_" + canonicalSkill(skill);
 
 function isPlanStarted(skill) {
   try { return localStorage.getItem(planKey(skill)) === "1"; } catch (e) { return false; }
@@ -111,8 +121,9 @@ function setPlanStarted(skill, started) {
 // Every skill that can carry a plan, in the order the app shows them.
 function planCandidates() {
   const names = [];
-  ALL.forEach(s => { if (names.indexOf(s.skill) === -1) names.push(s.skill); });
-  D.successionRisks.forEach(r => { if (names.indexOf(r.skill) === -1) names.push(r.skill); });
+  const add = n => { const c = canonicalSkill(n); if (names.indexOf(c) === -1) names.push(c); };
+  ALL.forEach(s => add(s.skill));
+  D.successionRisks.forEach(r => add(r.skill));
   return names;
 }
 
@@ -174,7 +185,11 @@ function readHash() {
   if (raw.indexOf("skill=") === 0) {
     const parts = raw.slice(6).split("&from=");
     state.skill = parts[0];
-    if (parts[1] && LISTS[parts[1]]) state.list = parts[1];
+    if (parts[1] && LISTS[parts[1]]) {
+      state.list = parts[1];
+      // Keep the lit tab and the breadcrumb telling the same story.
+      state.tab = LISTS[parts[1]].tab;
+    }
     return;
   }
   if (TABS.some(t => t.id === raw)) { state.tab = raw; state.skill = null; }
@@ -578,6 +593,23 @@ function markSaved(input) {
   note.classList.add("flash");
 }
 
+// Adds or removes the green tick next to the skill title without a full redraw,
+// so ticking the box does not throw you back to the top of the page.
+function markTitle(on) {
+  const title = document.querySelector(".skill-head .h1");
+  if (!title) return;
+  const existing = title.querySelector(".tick");
+  if (on && !existing) {
+    const t = document.createElement("i");
+    t.className = "tick big";
+    t.title = "Plan started";
+    t.innerHTML = "&#10003;";
+    title.appendChild(t);
+  } else if (!on && existing) {
+    existing.remove();
+  }
+}
+
 function render() {
   renderTabs();
 
@@ -596,6 +628,7 @@ function render() {
     setPlanStarted(state.skill, box.checked);
     markSaved(box);
     updateCounter();
+    markTitle(box.checked);
   });
 
   // Employee checkboxes write the same keys as the manager's, so a plan
