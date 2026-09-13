@@ -2,7 +2,7 @@
 
 A simple tool that shows what skills Schwan's employees have, where skills are missing, and where a critical skill is known by too few people.
 
-Built for **Southwest MN Hacks 2026** — Schwan's Prompt 01: *Talent Readiness & Skills Intelligence Platform* (+ Bonus: RFID/QR/LED Interactive System).
+Built for **Southwest MN Hacks 2026** - Schwan's Prompt 01: *Talent Readiness & Skills Intelligence Platform* (+ Bonus: RFID/QR/LED Interactive System).
 
 ## The Problem
 
@@ -10,9 +10,9 @@ Schwan's has 16 plants and 3 offices, split into 4 job groups (Plant & Warehouse
 
 ## What SkillSight Does
 
-- **Skills Heat Map** — shows how many people in each job group have each skill.
-- **Succession Risk** — lists critical skills known by only a few people, and where.
-- **Plant Network View** — the full list of plants and offices covered.
+- **Skills Heat Map** - shows how many people in each job group have each skill.
+- **Succession Risk** - lists critical skills known by only a few people, and where.
+- **Plant Network View** - the full list of plants and offices covered.
 
 ## Tech Stack
 
@@ -35,4 +35,4 @@ Ajay Angdembe (solo)
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).
