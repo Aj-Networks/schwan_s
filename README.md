@@ -4,7 +4,9 @@ A simple tool that shows what skills Schwan's employees have, where skills are m
 
 Built for **Southwest MN Hacks 2026**, Schwan's Prompt 01: *Talent Readiness and Skills Intelligence Platform*.
 
-![The overview: four numbers, then a ranked order of work](screenshots/overview.png)
+**The overview.** Four numbers, then a ranked order of work. The notes under each screen explain what you are looking at.
+
+![The overview, annotated](screenshots/overview.png)
 
 ## The problem
 
@@ -31,13 +33,13 @@ The **do this first** list is the part that matters. It scores every at-risk ski
 
 ## What it looks like
 
-**A skill page.** Coverage, who holds it, why it is a risk, the first step to close it, and where that data would come from in a real system.
+**A skill page.** Click any row anywhere in the app and you land here: coverage in people rather than percent, why it is a risk, the first step to close it, and where that data would come from in a real deployment.
 
-![A skill page](screenshots/skill-page.png)
+![A skill page, annotated](screenshots/skill-page.png)
 
-**The employee view.** The same data seen by the person rather than the manager. Sam is one of two people who hold the ammonia certification, so his step is to pass it on.
+**The employee view.** The same data seen by the person rather than the manager, because the challenge asks how *employees* close skill gaps.
 
-![The employee view](screenshots/employee-view.png)
+![The employee view, annotated](screenshots/employee-view.png)
 
 ## Run it
 
