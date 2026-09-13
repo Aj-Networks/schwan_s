@@ -6,11 +6,11 @@ Built for **Southwest MN Hacks 2026**, Schwan's Prompt 01: *Talent Readiness and
 
 ## The problem
 
-Schwan's runs 16 plants and 3 corporate offices, split into 4 job groups (Manufacturing and Logistics, Retail Sales and Distribution, Foodservice Sales, Corporate). Skills data sits in different places, so no one can answer a simple question: if the person who knows how to run the ammonia system leaves, who else can do it?
+Schwan's employs about 8,500 people across 16 plants and 3 corporate offices, split into 4 job groups (Manufacturing and Logistics, Retail Sales and Distribution, Foodservice Sales, Corporate). Skills data sits in different places, so no one can answer a simple question: if the person who knows how to run the ammonia system leaves, who else can do it?
 
 ## What it does
 
-SkillSight answers the five questions in the challenge, one page each.
+SkillSight answers the five questions in the challenge, one page each, plus a view built for the employee rather than the manager.
 
 | Page | Answers |
 |---|---|
@@ -18,6 +18,7 @@ SkillSight answers the five questions in the challenge, one page each.
 | **Skills** | What skills exist across the workforce and how well each is covered |
 | **Succession risk** | Which skills sit with three people or fewer, where, and how much it hurts if they leave |
 | **Future skills** | What the next two years need and how far short the workforce is now |
+| **Employee view** | The same data seen by the person: what they know, what only they know, and their next step |
 | **Plants and offices** | Every site the data covers |
 
 Click any row to open that skill. The skill page shows coverage, how many people hold it, why it is a risk, why it will be needed, and the first step to close the gap, plus backup options. Checking "development plan started" is saved in the browser, so it is still there after a reload.
@@ -46,7 +47,9 @@ PROJECT.md    challenge notes and research
 
 ## About the data
 
-Coverage numbers, headcounts, and employee names are made up for the demo. Plant names, office locations, job groups, and the business drivers (the Sioux Falls plant build-out, the CJ CheilJedang integration) are real and taken from public sources. The app says this on screen so nobody mistakes the demo for a real report.
+Coverage percentages, per-site headcounts, and employee records are made up for the demo. Company headcount, plant names, office locations, job groups, and the business drivers (the Sioux Falls plant build-out, the CJ CheilJedang integration) are real and taken from public sources.
+
+The made-up numbers are shaped by published figures rather than invented. Schwan's reports about 8,500 employees. Deloitte and The Manufacturing Institute put the manufacturing skills gap at 2.1 million unfilled jobs by 2030. The average certified ammonia refrigeration technician in the US is approaching 55, which is why the demo puts two retirement-eligible techs on the Marshall ammonia system. Every source is linked inside the app, under "Read more" on the Overview.
 
 ## Built with
 

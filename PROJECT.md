@@ -97,7 +97,7 @@ Per Devpost / event rules, the submission must include:
 |---|---|---|
 | Master reference doc | Done | `PROJECT.md` (this file) |
 | Solution name and description | Done | SkillSight. Shows what skills Schwan's employees have, where skills are missing, and where a critical skill is known by too few people. |
-| Working app | Done | `index.html`, `style.css`, `script.js`, `data.js` |
+| Working app | Done, 6 pages including an employee view | `index.html`, `style.css`, `script.js`, `data.js` |
 | Team members | Done | Ajay Angdembe, solo |
 | GitHub repo | Done | https://github.com/Aj-Networks/schwan_s |
 | Devpost copy | Done | `SUBMISSION.md` |
@@ -113,7 +113,8 @@ Per Devpost / event rules, the submission must include:
 - Light and dark themes, saved per browser.
 - "Development plan started" checkboxes persist in localStorage, so the demo carries real state.
 - No frameworks and no CDN scripts, so the app runs with no internet once the page is open.
-- Demo numbers, real locations. The app says so on screen.
+- Demo numbers, real locations. The app says so on screen, with published sources linked on the Overview.
+- Headcount sized to Schwan's published figure of about 8,500 employees.
 
 ## Open Items
 
