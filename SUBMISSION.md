@@ -34,7 +34,7 @@ Schwan's runs 16 plants and 3 corporate offices, split into 4 job groups. Skills
 
 SkillSight puts it in one place and answers the five questions in the challenge, one page each.
 
-- **Overview**: a ranked "do this first" list, plus the biggest gaps today.
+- **Overview**: a ranked "do this first" list, plus where coverage is lowest.
 - **Skills**: every skill in the workforce and how well each is covered.
 - **Succession risk**: which skills sit with three people or fewer, where they are, and how much it hurts if those people leave.
 - **Future skills**: what the next two years need and how far short the workforce is now.

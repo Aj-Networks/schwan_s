@@ -14,7 +14,7 @@ SkillSight answers the five questions in the challenge, one page each.
 
 | Page | Answers |
 |---|---|
-| **Overview** | A ranked "do this first" list, plus the biggest gaps today |
+| **Overview** | A ranked "do this first" list, plus where coverage is lowest |
 | **Skills** | What skills exist across the workforce and how well each is covered |
 | **Succession risk** | Which skills sit with three people or fewer, where, and how much it hurts if they leave |
 | **Future skills** | What the next two years need and how far short the workforce is now |
