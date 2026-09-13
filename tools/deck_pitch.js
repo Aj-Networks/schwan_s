@@ -238,4 +238,29 @@ rule(s, 7.1, { x: 12.0, w: 6.4, color: EDGE });
 txt(s, "Ajay Angdembe  ·  solo entry", { x: 12.0, y: 7.35, w: 6.4, h: 0.5, fontFace: BODY, fontSize: 17, color: PAPER });
 s.addNotes("Thank you. Questions.");
 
+
+/* ---------- 10: questions to expect ---------- */
+s = pres.addSlide();
+block(s, 0, 0, W, H, MIST);
+txt(s, "QUESTIONS TO EXPECT", { x: ML, y: 1.0, w: 8, h: 0.4, fontFace: BODY, fontSize: 13, bold: true, color: GREY, charSpacing: 3 });
+txt(s, "Ask me any of these.", { x: ML, y: 1.45, w: 14, h: 1.9, fontFace: DISPLAY, fontSize: 42, color: NAVY, lineSpacingMultiple: 1.06 });
+
+[
+  ["Are these real numbers?", "Coverage and headcounts are demo data. The job groups, sites, drivers and regulations are sourced in FACTS.md."],
+  ["Workday already does this. Why build it?", "Those systems hold the data. This one ranks it and attaches a first step. It is a lens, not a replacement."],
+  ["Did you use AI to build it?", "Yes, and the rules allow it. The architecture calls are mine and I can explain any line in the four files."],
+  ["How is the order decided?", "Impact, how few people hold it, and how big the gap is, multiplied. The formula is on screen, not hidden."],
+  ["What about privacy?", "Skills and training records only. No performance data. Employees see their own record, and the demo shows no real people."],
+  ["What is still missing?", "Real data, plans matched to people automatically, and a team view for the manager who would open it weekly."]
+].forEach((q, i) => {
+  const col = i % 2, row = Math.floor(i / 2);
+  const x = ML + col * 8.7, y = 3.9 + row * 2.0;
+  txt(s, q[0], { x, y, w: 7.5, h: 0.65, fontFace: DISPLAY, fontSize: 20, color: NAVY, lineSpacingMultiple: 1.12 });
+  txt(s, q[1], { x, y: y + 0.7, w: 7.5, h: 0.95, fontFace: BODY, fontSize: 16, color: GREY, lineSpacingMultiple: 1.3 });
+  if (col === 0) s.addShape("line", { x: x + 8.0, y: y - 0.15, w: 0, h: 1.7, line: { color: SOFT2, width: 1 } });
+  if (row < 2) rule(s, y + 1.78, { x, w: 7.5, color: SOFT2 });
+});
+footer(s, "Q&A.html in the repository has the full sheet", "FACTS.md lists every claim, its source, and what was cut");
+s.addNotes("Six questions judges ask most. The seventh answer is: I do not know, and I would rather find out than guess.");
+
 pres.writeFile({ fileName: OUT }).then(() => console.log("written", OUT));

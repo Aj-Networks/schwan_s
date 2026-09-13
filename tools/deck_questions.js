@@ -296,4 +296,29 @@ txt(s, "github.com/Aj-Networks/schwan_s", { x: ML, y: 7.35, w: 8.8, h: 0.5, font
 });
 s.addNotes("Thank you. Questions.");
 
+
+/* ---------- 10: questions to expect ---------- */
+s = pres.addSlide();
+block(s, 0, 0, W, H, PAPER);
+txt(s, "QUESTIONS TO EXPECT", { x: ML, y: 1.0, w: 8, h: 0.4, fontFace: BODY, fontSize: 13, bold: true, color: GREY, charSpacing: 3 });
+txt(s, "Ask me any of these.", { x: ML, y: 1.45, w: 14, h: 1.9, fontFace: DISPLAY, fontSize: 42, color: NAVY, lineSpacingMultiple: 1.06 });
+
+[
+  ["Are these real Schwan's numbers?", "No. Coverage and headcounts are demo data. Locations, job groups and the regulations are sourced."],
+  ["Where would this data really come from?", "Training and certification records, maintenance sign-offs, HR job codes. OSHA keeps the ammonia roster by law."],
+  ["How is the ranking calculated?", "Impact out of five, times three over the number of holders, times the size of the gap. Shown on screen."],
+  ["Why is there no AI advisor?", "The prompt lists it as one option of seven. A chatbot over twenty seeded rows would have been a bluff."],
+  ["Why only three employee profiles?", "They are samples. The view reads whatever roster it is given, and the plan state is shared with the manager."],
+  ["What would you build next?", "Live HR data, plans matched to people automatically, and a manager's view of one team rather than the company."]
+].forEach((q, i) => {
+  const col = i % 2, row = Math.floor(i / 2);
+  const x = ML + col * 8.7, y = 3.9 + row * 2.0;
+  txt(s, q[0], { x, y, w: 7.5, h: 0.65, fontFace: DISPLAY, fontSize: 20, color: NAVY, lineSpacingMultiple: 1.12 });
+  txt(s, q[1], { x, y: y + 0.7, w: 7.5, h: 0.95, fontFace: BODY, fontSize: 16, color: GREY, lineSpacingMultiple: 1.3 });
+  if (col === 0) s.addShape("line", { x: x + 8.0, y: y - 0.15, w: 0, h: 1.7, line: { color: LINE, width: 1 } });
+  if (row < 2) rule(s, y + 1.78, { x, w: 7.5, color: LINE });
+});
+footer(s, "Q&A.html in the repository has the full sheet", "FACTS.md lists every claim, its source, and what was cut");
+s.addNotes("If a question is not on this list, the honest answer is fine: I do not know, and I would rather find out than guess.");
+
 pres.writeFile({ fileName: OUT }).then(() => console.log("written", OUT));
