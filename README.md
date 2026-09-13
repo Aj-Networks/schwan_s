@@ -35,6 +35,14 @@ open index.html in a browser
 
 There is a light and dark toggle in the top right. The choice is remembered.
 
+## Self-check
+
+`verify.js` renders every page in a stub DOM and asserts the things that are easy to break by hand: every clickable row opens a real page, a started plan shows up in every list that contains that skill, Previous and Next are correct at every position, and the data obeys the rule the app states on screen.
+
+```
+node verify.js
+```
+
 ## Files
 
 ```
