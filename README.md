@@ -6,7 +6,7 @@ Built for **Southwest MN Hacks 2026**, Schwan's Prompt 01: *Talent Readiness and
 
 ## The problem
 
-Schwan's employs about 8,500 people across 16 plants and 3 corporate offices, split into 4 job groups (Manufacturing and Logistics, Retail Sales and Distribution, Foodservice Sales, Corporate). Skills data sits in different places, so no one can answer a simple question: if the person who knows how to run the ammonia system leaves, who else can do it?
+Schwan's runs more than a dozen US facilities across 4 job groups (Manufacturing and Logistics, Retail Sales and Distribution, Foodservice Sales, Corporate). Skills data sits in different places, so no one can answer a simple question: if the person who knows how to run the ammonia system leaves, who else can do it?
 
 ## What it does
 
@@ -55,15 +55,17 @@ PROJECT.md    challenge notes and research
 
 ## About the data
 
-Coverage percentages, per-site headcounts, and employee records are made up for the demo. Company headcount, plant names, office locations, job groups, and the business drivers (the Sioux Falls plant build-out, the CJ CheilJedang integration) are real and taken from public sources.
+Coverage percentages, per-site headcounts, and employee records are made up for the demo. The job groups, plant and office locations, the Sioux Falls build-out and the CJ CheilJedang ownership are real and taken from public sources. The site list is compiled from public reporting, not from a list the company publishes.
 
-The made-up numbers are shaped by published figures rather than invented. Schwan's reports about 8,500 employees. Deloitte and The Manufacturing Institute put the manufacturing skills gap at 2.1 million unfilled jobs by 2030. The average certified ammonia refrigeration technician in the US is approaching 55, which is why the demo puts two retirement-eligible techs on the Marshall ammonia system. Every source is linked inside the app, under "Read more" on the Overview.
+The made-up numbers are shaped by published figures rather than invented. Deloitte and The Manufacturing Institute put the manufacturing skills gap at 2.1 million unfilled jobs by 2030. The IIAR reports that 40 percent of skilled trades workers are over 45 and nearly half of those are over 55, which is why the demo puts retirement-eligible techs on the Marshall ammonia system.
+
+The workforce size is an assumption, not a fact: Schwan's does not publish a headcount, so the demo uses about 8,500 and says so on screen. Every claim, its source, and the three claims that were cut after checking are listed in [FACTS.md](FACTS.md). Sources are linked inside the app under "Read more" on the Overview.
 
 ## Where the data would really come from
 
 Every skill page names the systems a real deployment would read from, because the common objection is "we do not have this data". Most companies already do.
 
-The clearest case is ammonia refrigeration. Systems holding 10,000 pounds or more are a covered process under OSHA's process safety management rule, so the list of trained operators and their three-year refresher dates is kept by law. Food safety has a similar hook: FDA's preventive controls rule requires each facility to name a qualified individual in its food safety plan.
+The clearest case is ammonia refrigeration. Systems holding 10,000 pounds or more are a covered process under OSHA 1910.119, which requires refresher training at least every three years and a record naming each trained employee and the date. Food safety has a similar hook: a facility's written food safety plan must be prepared, or its preparation overseen, by a preventive controls qualified individual.
 
 One skill, the Salina line setup, honestly says "None. This skill has no system of record anywhere." That is the finding, not a gap in the tool.
 

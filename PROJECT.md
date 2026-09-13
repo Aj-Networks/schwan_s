@@ -54,13 +54,13 @@ Solution space: skills inventories, talent heat maps, AI-powered career developm
 Source: https://www.schwanscompany.com/
 
 **Scale/footprint** - Based in Minnesota; thousands of employees across dozens of locations. Three corporate offices (Marshall MN, Hopkins MN, La Palma CA). ~16 production sites:
-- Pizza, Asian-style foods & appetizers: Salina KS, Florence KY, Pasadena/Deer Park TX, Columbus OH, Sidney OH, City of Industry CA, Sioux Falls SD, Erie PA, North East PA, Westfield NY, Brooklyn NY, Fullerton CA, Beaumont CA
+- Pizza, Asian-style foods & appetizers: Salina KS, Florence KY, Pasadena/Deer Park TX, Columbus OH, Sidney OH, City of Industry CA, Erie PA, North East PA, Westfield NY, Brooklyn NY, Fullerton CA, Beaumont CA
 - Frozen desserts / ice cream: Marshall MN, Stilwell OK
 - Packaging: Pottstown PA
 
 *Pitch angle:* skills data is scattered across 16 plants and 3 offices with no single view.
 
-**Active growth** - Hiring across the U.S.; building a new production facility in Sioux Falls, SD. New plant = hundreds of roles to staff/train against capabilities that already exist elsewhere in the network.
+**Active growth** - Building a 700,000 sq ft Asian-style food plant (bibigo) in Sioux Falls, SD, opening 2027: 600+ plant jobs plus 50 office jobs. Verified against the company's May 2024 press release. Note: this is NOT a pizza plant, an error corrected late in the build.
 
 *Pitch angle:* the tool answers "who can we redeploy or train, and who trains them."
 
@@ -114,7 +114,8 @@ Per Devpost / event rules, the submission must include:
 - "Development plan started" checkboxes persist in localStorage, so the demo carries real state.
 - No frameworks and no CDN scripts, so the app runs with no internet once the page is open.
 - Demo numbers, real locations. The app says so on screen, with published sources linked on the Overview.
-- Headcount sized to Schwan's published figure of about 8,500 employees.
+- Fact check of every outside claim, including three claims cut for weak sourcing, is in `FACTS.md`.
+- Headcount of about 8,500 is a stated assumption. Schwan's does not publish one, third-party estimates range from roughly 4,000 to 8,500.
 
 ## Open Items
 
