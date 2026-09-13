@@ -275,7 +275,7 @@ function pageOverview() {
       people(p.risk.headcount) + '</span></td></tr>').join(""));
 
   return '<h1 class="h1">Workforce overview</h1>' +
-    '<p class="sub">16 plants and 3 offices. Four job groups, about ' + thousands(HEADCOUNT) + ' people, ' + ALL.length + ' skills tracked.</p>' +
+    '<p class="sub">' + D.plants.length + ' sites across the US. Four job groups, an assumed ' + thousands(HEADCOUNT) + ' people, ' + ALL.length + ' skills tracked.</p>' +
     aboutBlock() +
     '<div class="stats">' + stats + '</div>' +
     '<div class="sec" id="sec-priority"><div class="sec-h"><b>Do this first</b>' +
@@ -476,7 +476,7 @@ function pagePlants() {
   };
 
   return '<h1 class="h1">Plants and offices</h1>' +
-    '<p class="sub">Every site the skills data covers. Sioux Falls is still being built.</p>' +
+    '<p class="sub">Compiled from public reporting, not a list the company publishes. Sioux Falls opens in 2027.</p>' +
     '<div class="sec flush">' + bands.map(b => {
       const list = D.plants.filter(p => kindOf(p) === b.id);
       return '<details class="group"' + (b.open ? " open" : "") + '>' +

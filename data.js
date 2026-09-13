@@ -2,26 +2,40 @@
 const SKILLSIGHT_DATA = {
   // Said on screen so nobody mistakes the demo for a real report.
   demoNotes: {
-    headline: "Demo numbers, real places. Sized against Schwan's published headcount of about 8,500 people.",
+    headline: "Demo numbers, real places. Every outside fact is sourced, and the workforce size is a stated assumption.",
     points: [
       "Where this started: the five questions in the challenge. Each one became a page.",
-      "Assumed workforce: 5,200 in Manufacturing and Logistics, 1,500 in Retail Sales and Distribution, 550 in Foodservice Sales, 1,250 in Corporate. That totals 8,500, the headcount Schwan's publishes.",
+      "Assumed workforce of 8,500: 5,200 in Manufacturing and Logistics, 1,500 in Retail Sales and Distribution, 550 in Foodservice Sales, 1,250 in Corporate. Schwan's does not publish a headcount. Third party profiles range from about 4,000 to about 8,500. This demo uses the high end and says so, rather than claiming it as fact.",
       "Coverage is the share of a job group that has a skill. The people counts in the risk list are for one site, not the whole group, which is why a skill can read 22 percent and still come down to two certified techs at Marshall.",
-      "Real: plant and office locations, job groups, headcount, and the business reasons (the Sioux Falls build-out, the CJ CheilJedang integration, the Marshall R&D center).",
+      "Real and sourced: the job group names, plant and office locations, the Sioux Falls build-out, the Salina expansion, CJ CheilJedang ownership, and the regulations behind each data source. Links below.",
       "Made up: every coverage percentage, the per-site headcounts, and all employee records. They are shaped by published industry figures, listed below, not invented from nothing.",
+      "The site list is compiled from public reporting, not from a list Schwan's publishes. The company says only that it runs more than a dozen US facilities, so treat this network as close but not official.",
       "Limits: no real HR data, no login, and no live system to read from. The scores rank the work, they do not predict who will leave."
     ],
-    // Published figures the demo numbers are shaped around, so the assumptions
-    // can be checked instead of taken on trust.
+    // Every outside fact the app leans on, with the source it came from: company
+    // pages, a state government release, a federal regulator, and an industry
+    // association. Nothing from a personal blog. Full audit in FACTS.md.
     sources: [
-      { fact: "Schwan's employs about 8,500 people, headquartered in Marshall, MN, 80 percent owned by CJ CheilJedang.",
-        source: "Schwan's Company, Wikipedia", url: "https://en.wikipedia.org/wiki/Schwan%27s_Company" },
-      { fact: "The US manufacturing skills gap could leave 2.1 million jobs unfilled by 2030, costing $1 trillion in that year alone. Baby boomer retirement is named by 34 percent of manufacturers as a top cause.",
+      { fact: "Schwan's is headquartered in Marshall, MN and is a subsidiary of CJ CheilJedang, describing itself as a US-based affiliate of CJ Foods.",
+        source: "Schwan's Company, About Us", url: "https://www.schwanscompany.com/about-us/" },
+      { fact: "The four job groups used here are Schwan's own career areas: Manufacturing and Logistics, Retail Sales and Distribution, Foodservice Sales, and Corporate. The same site describes more than a dozen US facilities and the world's largest pizza plant.",
+        source: "Schwan's Careers", url: "https://www.schwansjobs.com/" },
+      { fact: "The new Sioux Falls plant is 700,000 square feet of Asian-style food production for bibigo, creating over 600 plant jobs plus 50 office jobs, opening 2027.",
+        source: "Schwan's Company press release, May 2024", url: "https://www.prnewswire.com/news-releases/schwans-company-and-state-of-south-dakota-announce-future-investments-in-sioux-falls-to-support-new-food-production-facility-302159947.html" },
+      { fact: "The Salina, KS pizza plant completed a 400,000 square foot expansion in 2023, creating 225 jobs.",
+        source: "Kansas Department of Commerce", url: "https://www.kansascommerce.gov/2023/05/governor-kelly-congratulates-schwans-for-completion-of-major-pizza-plant-expansion-in-salina-creating-225-jobs/" },
+      { fact: "The US manufacturing skills gap could leave 2.1 million jobs unfilled by 2030, costing $1 trillion in that year alone. Retirement of baby boomers is named by 34 percent of manufacturers as a top cause.",
         source: "Deloitte and The Manufacturing Institute", url: "https://themanufacturinginstitute.org/2-1-million-manufacturing-jobs-could-go-unfilled-by-2030-11330/" },
-      { fact: "The average certified ammonia refrigeration technician in the US is approaching 55 years old, and retirements are outpacing new entrants. That is why this demo puts two retirement-eligible techs on the ammonia system.",
-        source: "Dealing with the Turnover of Ammonia Technicians, NaturalRefrigerants.com", url: "https://naturalrefrigerants.com/dealing-with-the-turnover-of-ammonia-technicians/" },
-      { fact: "More than 70 percent of maintenance teams report being understaffed at least sometimes, and 37 percent say they are chronically understaffed.",
-        source: "Survey of 211 maintenance leaders, reported by Stacker", url: "https://ktvz.com/stacker-small-business/2026/09/08/what-211-maintenance-leaders-said-about-skilled-labor-shortages/" }
+      { fact: "40 percent of the 12 million people in the skilled trades are over 45, nearly half of those over 55, and fewer than 9 percent of workers aged 19 to 24 are entering the trades. That is why the demo puts retirement-eligible techs on a critical system.",
+        source: "IIAR Condenser, the industrial refrigeration association's journal", url: "https://iiarcondenser.org/the-technician-shortage/" },
+      { fact: "Ammonia refrigeration systems holding 10,000 pounds or more are a covered process under OSHA 1910.119, which requires refresher training at least every three years and a record naming each trained employee and the date.",
+        source: "OSHA, 29 CFR 1910.119", url: "https://www.osha.gov/laws-regs/standardinterpretations/2016-07-21" },
+      { fact: "CJ CheilJedang's acquisition of Schwan's took its US production bases from 5 to 22, which is the integration this demo's labeling and duplicate-role pressure comes from.",
+        source: "CJ CheilJedang press release", url: "https://www.cj.co.kr/en/newsroom/pressreleases/news-detail/1283" },
+      { fact: "CJ Foods moved its US headquarters to La Palma, CA in 2023, which is why La Palma appears in this network as an affiliate office rather than a Schwan's corporate site.",
+        source: "Orange County Business Journal", url: "https://www.ocbj.com/real-estate/cj-foods-follows-fullerton-plant-new-hq-la-palma/" },
+      { fact: "A facility's written food safety plan must be prepared, or its preparation overseen, by a preventive controls qualified individual. FDA mandates no specific certificate.",
+        source: "FDA, FSMA questions and answers", url: "https://www.fda.gov/food/food-safety-modernization-act-fsma/frequently-asked-questions-fsma" }
     ]
   },
 
@@ -84,12 +98,12 @@ const SKILLSIGHT_DATA = {
     bySkill: {
       "Refrigeration & Ammonia Systems": {
         systems: "Process safety training records, RETA or EPA certification files, and maintenance sign-offs.",
-        note: "Ammonia systems holding 10,000 pounds or more are a covered process under OSHA's process safety management rule. The list of trained operators, and the three year refresher dates, is kept by law. Nobody has to build it.",
+        note: "Ammonia systems holding 10,000 pounds or more are a covered process under OSHA 1910.119. The employer must refresher-train operators at least every three years and keep a record naming each employee, the date, and how understanding was verified. The roster exists by law. Nobody has to build it.",
         source: "OSHA 29 CFR 1910.119", url: "https://www.osha.gov/laws-regs/standardinterpretations/2016-07-21"
       },
       "Food Safety / HACCP": {
         systems: "Food safety plan records and training files.",
-        note: "FDA's preventive controls rule requires each facility to name a Preventive Controls Qualified Individual in its food safety plan, so the plant already knows who is qualified.",
+        note: "A facility's written food safety plan must be prepared, or its preparation overseen, by a preventive controls qualified individual, so the plant already knows who that is. FDA mandates no specific certificate, which is why job history counts here as much as a course.",
         source: "FDA, FSMA questions and answers", url: "https://www.fda.gov/food/food-safety-modernization-act-fsma/frequently-asked-questions-fsma"
       },
       "PLC / Automation Programming": {
@@ -164,17 +178,17 @@ const SKILLSIGHT_DATA = {
   plants: [
     "Marshall, MN (Corporate + R&D + Ice Cream)",
     "Hopkins, MN (Corporate)",
-    "La Palma, CA (Corporate)",
+    "La Palma, CA (CJ Foods USA office)",
     "Salina, KS (Pizza)", "Florence, KY (Pizza)", "Pasadena/Deer Park, TX (Pizza)",
     "Columbus, OH (Pizza)", "Sidney, OH (Pizza)", "City of Industry, CA (Pizza)",
-    "Sioux Falls, SD (Pizza - new facility)", "Erie, PA (Pizza)", "North East, PA (Pizza)",
+    "Sioux Falls, SD (Asian-style foods, opening 2027)", "Erie, PA (Pizza)", "North East, PA (Pizza)",
     "Westfield, NY (Pizza)", "Brooklyn, NY (Pizza)", "Fullerton, CA (Pizza)", "Beaumont, CA (Pizza)",
     "Stilwell, OK (Frozen Desserts)", "Pottstown, PA (Packaging)"
   ],
 
   // Forward-looking demand tied to real business drivers (Q2: future skills needed)
   futureSkills: [
-    { skill: "PLC / Automation Programming", segment: "Manufacturing & Logistics", currentCoverage: 34, targetCoverage: 65, driver: "Sioux Falls plant build-out needs automation techs ready before opening." },
+    { skill: "PLC / Automation Programming", segment: "Manufacturing & Logistics", currentCoverage: 34, targetCoverage: 65, driver: "The new Sioux Falls plant, 700,000 square feet of Asian-style food production, needs automation techs trained before it opens in 2027." },
     { skill: "Data Analytics", segment: "Corporate", currentCoverage: 41, targetCoverage: 70, driver: "AI-driven demand forecasting rollout across the supply chain." },
     { skill: "Refrigeration & Ammonia Systems", segment: "Manufacturing & Logistics", currentCoverage: 22, targetCoverage: 50, driver: "New frozen-capacity expansion requires more certified techs, not just replacements." },
     { skill: "Legal / Compliance", segment: "Corporate", currentCoverage: 20, targetCoverage: 55, driver: "Cross-border integration with CJ CheilJedang increases labeling and compliance load." },
