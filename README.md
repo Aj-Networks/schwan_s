@@ -55,7 +55,7 @@ data.js       the data the app reads
 verify.js     self-check, run with node
 FACTS.md      every outside claim, its source, and what was cut
 BRIEF.md      the written brief, readable here in the browser
-exports/      the brief and the deck, as PDF and PowerPoint
+exports/      the brief and the deck, as PDF
 tools/        generators for the deck and the brief, plus a layout checker
 screenshots/  the pages, captured from the app
 ```
@@ -66,7 +66,7 @@ The full write-up is [BRIEF.md](BRIEF.md), which GitHub renders in the browser: 
 
 The same paper in APA layout, with page numbers: [SkillSight-Brief.pdf](exports/SkillSight-Brief.pdf).
 
-The deck is [SkillSight-Deck.pdf](exports/SkillSight-Deck.pdf) to flip through in the browser, or [SkillSight-Deck.pptx](exports/SkillSight-Deck.pptx) if you want the speaker notes.
+The deck is [SkillSight-Deck.pdf](exports/SkillSight-Deck.pdf), six slides you can flip through in the browser.
 
 ## About the data
 
