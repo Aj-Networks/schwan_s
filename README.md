@@ -4,6 +4,8 @@ A simple tool that shows what skills Schwan's employees have, where skills are m
 
 Built for **Southwest MN Hacks 2026**, Schwan's Prompt 01: *Talent Readiness and Skills Intelligence Platform*.
 
+![The overview: four numbers, then a ranked order of work](screenshots/overview.png)
+
 ## The problem
 
 Schwan's runs more than a dozen US facilities across 4 job groups (Manufacturing and Logistics, Retail Sales and Distribution, Foodservice Sales, Corporate). Skills data sits in different places, so no one can answer a simple question: if the person who knows how to run the ammonia system leaves, who else can do it?
@@ -26,6 +28,16 @@ The tabs run in the order the challenge asks its questions.
 Click any row to open that skill. The skill page shows coverage, how many people hold it, why it is a risk, why it will be needed, the first step to close the gap with backup options, and **where the data would come from in a real deployment**. Checking "development plan started" is saved in the browser, so it is still there after a reload.
 
 The **do this first** list is the part that matters. It scores every at-risk skill by how much the business is hurt if it is lost, how few people hold it, and how big the gap is, then ranks them. That turns a wall of numbers into an order of work.
+
+## What it looks like
+
+**A skill page.** Coverage, who holds it, why it is a risk, the first step to close it, and where that data would come from in a real system.
+
+![A skill page](screenshots/skill-page.png)
+
+**The employee view.** The same data seen by the person rather than the manager. Sam is one of two people who hold the ammonia certification, so his step is to pass it on.
+
+![The employee view](screenshots/employee-view.png)
 
 ## Run it
 
@@ -57,7 +69,7 @@ FACTS.md      every outside claim, its source, and what was cut
 BRIEF.md      the written brief, readable here in the browser
 exports/      the brief and the deck, as PDF
 tools/        generators for the deck and the brief, plus a layout checker
-screenshots/  the pages, captured from the app
+screenshots/  the three images used in this README
 ```
 
 ## Read the brief
