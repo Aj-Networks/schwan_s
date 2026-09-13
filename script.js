@@ -108,11 +108,32 @@ function setPlanStarted(skill, started) {
   try { localStorage.setItem(planKey(skill), started ? "1" : "0"); } catch (e) { /* not fatal */ }
 }
 
+// Every skill that can carry a plan, in the order the app shows them.
+function planCandidates() {
+  const names = [];
+  ALL.forEach(s => { if (names.indexOf(s.skill) === -1) names.push(s.skill); });
+  D.successionRisks.forEach(r => { if (names.indexOf(r.skill) === -1) names.push(r.skill); });
+  return names;
+}
+
+function startedSkills() {
+  return planCandidates().filter(isPlanStarted);
+}
+
+// The counter in the top bar, updated the moment a box is ticked rather than
+// on the next render, so the click has an effect you can see from anywhere.
+function updateCounter() {
+  const n = startedSkills().length;
+  const out = document.getElementById("plans-count");
+  const btn = document.getElementById("plans-btn");
+  if (!out || !btn) return;
+  out.textContent = n;
+  btn.classList.toggle("on", n > 0);
+  btn.title = n === 0 ? "No plans started yet" : n + (n === 1 ? " plan started" : " plans started");
+}
+
 function plansStarted() {
-  const names = {};
-  ALL.forEach(s => { names[s.skill] = 1; });
-  D.successionRisks.forEach(r => { names[r.skill] = 1; });
-  return Object.keys(names).filter(isPlanStarted).length;
+  return startedSkills().length;
 }
 
 /* ---------- state ---------- */
@@ -299,12 +320,21 @@ function pageFuture() {
     '<div class="sec flush">' + table('<th>Skill</th><th>Today</th><th class="num">Needed</th><th class="num">Gap</th>', body) + '</div>';
 }
 
+function personPlans(e) {
+  const skills = e.learning.concat(e.has.filter(sk => riskFor(sk)).map(sk => (riskFor(sk) || {}).skill));
+  const unique = skills.filter((sk, i) => sk && skills.indexOf(sk) === i);
+  return { total: unique.length, done: unique.filter(isPlanStarted).length };
+}
+
 function pagePeople() {
   const person = D.employees.find(e => e.id === state.person) || D.employees[0];
 
-  const picker = '<div class="picker">' + D.employees.map(e =>
-    '<div class="who' + (e.id === person.id ? " on" : "") + '" data-person="' + esc(e.id) + '">' +
-      '<b>' + esc(e.name) + '</b><span>' + esc(e.role) + '</span></div>').join("") + '</div>';
+  const picker = '<div class="picker">' + D.employees.map(e => {
+    const t = personPlans(e);
+    return '<div class="who' + (e.id === person.id ? " on" : "") + '" data-person="' + esc(e.id) + '">' +
+      '<b>' + esc(e.name) + (t.done ? '<i class="tick">' + t.done + '</i>' : "") + '</b>' +
+      '<span>' + esc(e.role) + '</span></div>';
+  }).join("") + '</div>';
 
   // Where this person is one of very few holders. This is the line that makes
   // knowledge concentration personal instead of a number on a manager's screen.
@@ -330,7 +360,8 @@ function pagePeople() {
       '<p class="prose">' + esc(a.detail) + '</p>' +
       '<div class="why">' + (fut ? "Needed at " + fut.targetCoverage + " percent by 2027. " + esc(fut.driver)
         : row ? "Only " + row.coverage + " percent of this job group can do it today." : "") + '</div>' +
-      '<label class="check"><input type="checkbox" class="emp-plan" data-plan="' + esc(skill) + '"' +
+      '<label class="check' + (isPlanStarted(skill) ? " done" : "") + '">' +
+        '<input type="checkbox" class="emp-plan" data-plan="' + esc(skill) + '"' +
         (isPlanStarted(skill) ? " checked" : "") + '> Development plan started</label>' +
     '</div>';
   }).join("");
@@ -353,7 +384,8 @@ function pagePeople() {
             '<p class="prose">You are one of ' + people(r.headcount) + ' at ' +
               esc(r.location.split(" (")[0]) + ' who can do this. ' + esc(r.note) + '</p>' +
             (pass ? '<div class="why">Your step to pass it on: ' + esc(pass.method.toLowerCase()) + '. ' + esc(pass.detail) + '</div>' +
-              '<label class="check"><input type="checkbox" class="emp-plan" data-plan="' + esc(r.skill) + '"' +
+              '<label class="check' + (isPlanStarted(r.skill) ? " done" : "") + '">' +
+              '<input type="checkbox" class="emp-plan" data-plan="' + esc(r.skill) + '"' +
               (isPlanStarted(r.skill) ? " checked" : "") + '> Knowledge transfer started</label>' : "") +
           '</div>';
         }).join("") + '</div>'
@@ -362,6 +394,35 @@ function pagePeople() {
       table('<th>Skill</th><th>Coverage in your job group</th><th class="num">Rarity</th>', held) + '</div>' +
     '<div class="sec"><div class="sec-h"><b>Your development plan</b><span>' + person.learning.length +
       (person.learning.length === 1 ? ' skill' : ' skills') + ' in progress</span></div>' + plan + '</div>';
+}
+
+function pagePlans() {
+  const started = startedSkills();
+
+  if (!started.length) {
+    return '<h1 class="h1">Plans you have started</h1>' +
+      '<p class="sub">Nothing started yet. Open any skill and tick "Development plan started".</p>' +
+      '<p class="empty">Ticked plans collect here, so twelve clicks later you can still see what you committed to.</p>';
+  }
+
+  const rows = started.map(skill => {
+    const row = ALL.find(r => r.skill === skill);
+    const risk = riskFor(skill);
+    const a = actionFor(skill) || actionFor(skill.split(" - ")[0]);
+    const who = D.employees.filter(e => e.learning.indexOf(skill) > -1 || e.has.indexOf(skill) > -1);
+    return '<tr><td class="name" data-skill="' + esc(skill) + '" data-list="skills">' + esc(skill) +
+        '<div class="why">' + (a ? esc(a.method) + ". " : "") +
+          (risk ? people(risk.headcount) + ' hold it at ' + esc(risk.location.split(" (")[0]) + '. ' : "") +
+          (row ? row.coverage + ' percent coverage today.' : "") + '</div></td>' +
+      '<td class="grp">' + (who.length ? who.map(e => esc(e.name)).join(", ") : "Manager plan") + '</td>' +
+      '<td class="num"><button class="mini-btn" data-unplan="' + esc(skill) + '">Mark not started</button></td></tr>';
+  }).join("");
+
+  return '<h1 class="h1">Plans you have started</h1>' +
+    '<p class="sub">' + started.length + (started.length === 1 ? ' plan' : ' plans') +
+      ' in progress. Saved in this browser, and the same list the Overview counts.</p>' +
+    '<div class="sec flush">' +
+      table('<th>Skill</th><th>Owner</th><th class="num">Undo</th>', rows) + '</div>';
 }
 
 function pagePlants() {
@@ -480,7 +541,9 @@ function pageSkill(name) {
     : "";
 
   return navStrip() +
-    '<div class="skill-head"><div><h1 class="h1">' + esc(skill) + '</h1><p class="sub">' + esc(segment) + '</p></div>' +
+    '<div class="skill-head"><div><h1 class="h1">' + esc(skill) +
+      (isPlanStarted(skill) ? '<i class="tick big" title="Plan started">&#10003;</i>' : "") +
+      '</h1><p class="sub">' + esc(segment) + '</p></div>' +
       '<span class="pill ' + lv[0] + '">' + lv[1] + '</span></div>' +
     stats + riskSec + futureSec + planSec + srcSec;
 }
@@ -520,12 +583,14 @@ function render() {
   else if (state.tab === "risk") page.innerHTML = pageRisk();
   else if (state.tab === "future") page.innerHTML = pageFuture();
   else if (state.tab === "people") page.innerHTML = pagePeople();
+  else if (state.tab === "plans") page.innerHTML = pagePlans();
   else page.innerHTML = pagePlants();
 
   const box = document.getElementById("plan-box");
   if (box) box.addEventListener("change", () => {
     setPlanStarted(state.skill, box.checked);
     markSaved(box);
+    updateCounter();
   });
 
   // Employee checkboxes write the same keys as the manager's, so a plan
@@ -534,8 +599,10 @@ function render() {
     cb.addEventListener("change", () => {
       setPlanStarted(cb.dataset.plan, cb.checked);
       markSaved(cb);
+      updateCounter();
     }));
 
+  updateCounter();
   writeHash();
 
   // Coming back from a skill lands on the section it was opened from,
@@ -604,6 +671,20 @@ document.addEventListener("keydown", e => {
   if (i === -1) return;
   const next = e.key === "ArrowRight" ? items[i + 1] : items[i - 1];
   if (next) { e.preventDefault(); openSkill(next); }
+});
+
+document.getElementById("plans-btn").addEventListener("click", () => {
+  state.tab = "plans";
+  state.skill = null;
+  state.list = null;
+  render();
+});
+
+document.getElementById("page").addEventListener("click", e => {
+  const undo = e.target.closest("[data-unplan]");
+  if (!undo) return;
+  setPlanStarted(undo.dataset.unplan, false);
+  render();
 });
 
 document.getElementById("search").addEventListener("input", e => {
