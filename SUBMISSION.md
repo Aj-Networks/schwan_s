@@ -43,6 +43,12 @@ SkillSight puts it in one place and answers the five questions in the challenge,
 
 Click any row to open that skill. The skill page shows coverage, how many people hold it, why it is a risk, why it will be needed, and the first step to close the gap with two backup options. Marking a development plan as started is saved in the browser and is still there after a reload.
 
+## Answering "we do not have this data"
+
+Every skill page names the systems a real deployment would read from. Ammonia refrigeration is the strongest case: systems over 10,000 pounds are an OSHA covered process, so the trained-operator list and its three-year refresher dates already exist by law. Food safety has the FDA preventive-controls qualified individual. Maintenance skills come from work order sign-offs, which record who actually did the work rather than who took the course.
+
+One skill says "None. This skill has no system of record anywhere." That is the Salina line setup, and it is the finding rather than a gap in the tool.
+
 ## The part that matters
 
 Most dashboards show numbers and stop. SkillSight ranks them. The "do this first" list scores every at-risk skill by three things: how much the business is hurt if the skill is lost, how few people hold it, and how big the gap is. That turns a wall of numbers into an order of work a manager can act on Monday.
