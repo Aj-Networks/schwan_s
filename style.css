@@ -262,6 +262,8 @@ td.rank { font-family: "JetBrains Mono", monospace; color: var(--faint); font-si
 .skill-head .pill { font-size: 12px; padding: 5px 11px; }
 
 .prose { font-size: 14px; line-height: 1.65; color: var(--ink-2); max-width: 66ch; margin: 0; }
+p.src-note { font-size: 13px; color: var(--muted); margin-top: 9px; }
+p.src-note a { color: var(--accent); }
 
 .plan { display: flex; gap: 13px; align-items: flex-start; }
 .plan-m {

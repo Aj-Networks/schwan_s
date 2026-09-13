@@ -34,6 +34,14 @@ const actionFor = skill => D.recommendedActions[skill] || null;
 const alternatesFor = skill => D.alternateActions[skill] || [];
 const futureFor = skill => D.futureSkills.find(f => f.skill === skill);
 
+// Where a real deployment would read this skill from. Falls back to the job
+// group's usual systems when a skill has no entry of its own.
+function provenanceFor(skill, segment) {
+  const base = skill.split(" - ")[0];
+  return D.dataSources.bySkill[skill] || D.dataSources.bySkill[base]
+    || (segment ? { systems: D.dataSources.bySegment[segment] } : null);
+}
+
 // Risk entries carry a location suffix ("Pizza Line Configuration - Salina"),
 // so match on the part before the dash as well as the full name.
 function riskFor(skill) {
@@ -453,17 +461,28 @@ function pageSkill(name) {
 
   const planSec = plan
     ? '<div class="sec"><div class="sec-h"><b>How to close it</b><span>first step' +
-        '<em class="q">Answers: how can employees close skill gaps through training, mentoring, certifications, job rotations, or project experiences</em></span></div>' +
+        '<em class="q">Answers: how employees close skill gaps</em></span></div>' +
       '<div class="plan"><span class="plan-m">' + esc(plan.method) + '</span><p class="prose">' + esc(plan.detail) + '</p></div>' +
       altSec +
       '<label class="check"><input type="checkbox" id="plan-box"' + (isPlanStarted(skill) ? " checked" : "") + '>' +
         ' Development plan started</label></div>'
     : "";
 
+  const src = provenanceFor(skill, segment);
+  const srcSec = src
+    ? '<div class="sec"><div class="sec-h"><b>Where this comes from</b>' +
+        '<span>in a real deployment, not this demo</span></div>' +
+      '<p class="prose">' + esc(src.systems) + '</p>' +
+      (src.note ? '<p class="prose src-note">' + esc(src.note) +
+        (src.url ? ' <a href="' + esc(src.url) + '" target="_blank" rel="noopener">' + esc(src.source) + '</a>' : "") +
+        '</p>' : "") +
+    '</div>'
+    : "";
+
   return navStrip() +
     '<div class="skill-head"><div><h1 class="h1">' + esc(skill) + '</h1><p class="sub">' + esc(segment) + '</p></div>' +
       '<span class="pill ' + lv[0] + '">' + lv[1] + '</span></div>' +
-    stats + riskSec + futureSec + planSec;
+    stats + riskSec + futureSec + planSec + srcSec;
 }
 
 /* ---------- render ---------- */
