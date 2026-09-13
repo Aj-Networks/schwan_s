@@ -198,6 +198,8 @@ html[data-theme="dark"] .ico-moon { display: none; }
 .sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
 .sec-h b { font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--faint); }
 .sec-h span { font-size: 12.5px; color: var(--muted); }
+.sec-h span a { color: var(--accent); cursor: pointer; }
+.sec-h span a:hover { text-decoration: underline; }
 
 /* ---------------- tables ---------------- */
 .table-wrap { overflow-x: auto; }
@@ -263,9 +265,54 @@ td.rank { font-family: "JetBrains Mono", monospace; color: var(--faint); font-si
   white-space: nowrap;
 }
 
-.alts { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
-.alt { display: flex; gap: 13px; align-items: baseline; padding: 5px 0; font-size: 13px; color: var(--muted); }
+/* collapsed by default: the first step is the answer, the rest is backup */
+.alts { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+.alts summary { font-size: 13px; color: var(--accent); cursor: pointer; list-style: none; }
+.alts summary::-webkit-details-marker { display: none; }
+.alts summary::before { content: "+ "; }
+.alts[open] summary::before { content: "− "; }
+.alt { display: flex; gap: 13px; align-items: baseline; padding: 6px 0 0; font-size: 13px; color: var(--muted); }
 .alt b { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); min-width: 92px; }
+
+/* what the demo assumes, folded away until asked for */
+.about { margin: 18px 0 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.about summary {
+  padding: 11px 14px;
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+  list-style: none;
+}
+.about summary::-webkit-details-marker { display: none; }
+.about summary::after { content: "  Read more"; color: var(--accent); font-size: 12.5px; }
+.about[open] summary::after { content: "  Close"; }
+.about[open] summary { border-bottom: 1px solid var(--line-soft); }
+.about ul { margin: 0; padding: 12px 14px 14px 30px; }
+.about li { font-size: 13px; line-height: 1.6; color: var(--muted); margin-bottom: 6px; }
+.about li:last-child { margin-bottom: 0; }
+
+/* step through the list a skill was opened from */
+.navstrip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  font-size: 12.5px;
+}
+.navstrip .back { color: var(--accent); cursor: pointer; }
+.navstrip .back::before { content: "← "; }
+.navstrip .back:hover { text-decoration: underline; }
+.navstrip .pos { color: var(--faint); }
+.navstrip .steps { margin-left: auto; display: flex; gap: 6px; }
+.navstrip .steps a, .navstrip .steps .off {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 11px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.navstrip .steps a:hover { border-color: var(--accent); color: var(--accent); }
+.navstrip .steps .off { color: var(--faint); opacity: .55; cursor: default; }
 
 .check {
   display: flex;

@@ -1,6 +1,7 @@
 /* SkillSight - app logic.
    One page at a time: Overview, Skills, Succession risk, Future skills, Plants.
-   Clicking any row opens that skill and answers the five challenge questions for it. */
+   Opening a skill remembers which list it came from, so you can step through
+   that list with Previous and Next and land back where you were. */
 
 const D = SKILLSIGHT_DATA;
 
@@ -20,13 +21,14 @@ function ramp(pct) {
 
 const ALL = [];
 D.segments.forEach(seg => {
-  seg.skills.forEach(s => ALL.push({ segment: seg.name, skill: s.skill, coverage: s.coverage }));
+  seg.skills.forEach(s => ALL.push({ segment: seg.name, skill: s.skill, coverage: s.coverage, groupSize: seg.size }));
 });
 ALL.sort((a, b) => a.coverage - b.coverage);
 
 const GAPS = ALL.filter(s => s.coverage < 40);
 const AVG = Math.round(ALL.reduce((t, s) => t + s.coverage, 0) / ALL.length);
 const THIN = D.successionRisks.filter(r => r.headcount <= 3);
+const HEADCOUNT = D.segments.reduce((t, s) => t + s.size, 0);
 
 const actionFor = skill => D.recommendedActions[skill] || null;
 const alternatesFor = skill => D.alternateActions[skill] || [];
@@ -41,6 +43,7 @@ function riskFor(skill) {
 }
 
 const people = n => n + (n === 1 ? " person" : " people");
+const thousands = n => n.toLocaleString("en-US");
 
 function level(pct) {
   if (pct < 40) return ["hi", "Critical gap"];
@@ -54,6 +57,12 @@ const PRIORITY = D.successionRisks.map(r => {
   const gap = cov ? (100 - cov.coverage) / 100 : 0.6;
   return { skill: r.skill, risk: r, score: (r.impact / 5) * (3 / r.headcount) * (0.4 + gap) };
 }).sort((a, b) => b.score - a.score);
+
+const RISKS_SORTED = D.successionRisks.slice().sort((a, b) => a.headcount - b.headcount);
+const FUTURE_SORTED = D.futureSkills.slice()
+  .sort((a, b) => (b.targetCoverage - b.currentCoverage) - (a.targetCoverage - a.currentCoverage));
+
+const TOP_GAPS = GAPS.slice(0, 5);
 
 /* ---------- theme ---------- */
 
@@ -79,8 +88,7 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 });
 
 /* ---------- development plans (challenge question 5) ---------- */
-// Checking the box survives a reload, so the demo carries real state
-// instead of a decorative checkbox.
+// Checking the box survives a reload, so the demo carries real state.
 
 const planKey = skill => "skillsight_plan_" + skill;
 
@@ -109,7 +117,22 @@ const TABS = [
   { id: "plants", label: "Plants and offices", count: D.plants.length }
 ];
 
-const state = { tab: "overview", skill: null, query: "" };
+// Every clickable row belongs to a list. Opening a skill remembers the list,
+// which is what makes Previous, Next and "back to where I was" work.
+const LISTS = {
+  priority: { label: "Do this first", tab: "overview", anchor: "sec-priority", items: () => PRIORITY.map(p => p.skill) },
+  gaps:     { label: "Biggest gaps today", tab: "overview", anchor: "sec-gaps", items: () => TOP_GAPS.map(g => g.skill) },
+  skills:   { label: "Skills", tab: "skills", anchor: null, items: () => visibleSkills().map(s => s.skill) },
+  risk:     { label: "Succession risk", tab: "risk", anchor: null, items: () => RISKS_SORTED.map(r => r.skill) },
+  future:   { label: "Future skills", tab: "future", anchor: null, items: () => FUTURE_SORTED.map(f => f.skill) }
+};
+
+const state = { tab: "overview", skill: null, list: null, query: "", scrollTo: null };
+
+function visibleSkills() {
+  const q = state.query.trim().toLowerCase();
+  return ALL.filter(r => !q || r.skill.toLowerCase().includes(q) || r.segment.toLowerCase().includes(q));
+}
 
 /* ---------- address bar ---------- */
 // The page you are looking at shows up in the URL (#skills, #skill=Data Analytics),
@@ -119,21 +142,20 @@ function readHash() {
   const raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
   if (!raw) return;
   if (raw.indexOf("skill=") === 0) {
-    state.skill = raw.slice(6);
+    const parts = raw.slice(6).split("&from=");
+    state.skill = parts[0];
+    if (parts[1] && LISTS[parts[1]]) state.list = parts[1];
     return;
   }
-  if (TABS.some(t => t.id === raw)) {
-    state.tab = raw;
-    state.skill = null;
-  }
+  if (TABS.some(t => t.id === raw)) { state.tab = raw; state.skill = null; }
 }
 
 function writeHash() {
-  const want = state.skill ? "skill=" + state.skill : state.tab;
+  const want = state.skill
+    ? "skill=" + state.skill + (state.list ? "&from=" + state.list : "")
+    : state.tab;
   const current = decodeURIComponent(window.location.hash.replace(/^#/, ""));
-  if (current !== want) {
-    history.replaceState(null, "", "#" + encodeURIComponent(want));
-  }
+  if (current !== want) history.replaceState(null, "", "#" + encodeURIComponent(want));
 }
 
 window.addEventListener("hashchange", () => { readHash(); render(); });
@@ -150,23 +172,28 @@ function coverageCell(pct) {
 }
 
 function table(head, body) {
-  return '<div class="table-wrap"><table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table></div>';
+  return '<div class="table-wrap"><table>' + (head ? '<thead><tr>' + head + '</tr></thead>' : "") +
+    '<tbody>' + body + '</tbody></table></div>';
 }
 
-function skillRows(rows) {
+function skillRows(rows, listId) {
   return rows.map(r => {
     const lv = level(r.coverage);
-    const started = isPlanStarted(r.skill);
-    return '<tr data-skill="' + esc(r.skill) + '">' +
+    return '<tr data-skill="' + esc(r.skill) + '" data-list="' + listId + '">' +
       '<td class="name">' + esc(r.skill) + '</td>' +
       '<td class="grp">' + esc(r.segment) + '</td>' +
       '<td>' + coverageCell(r.coverage) + '</td>' +
       '<td class="num"><span class="pill ' + lv[0] + '">' + lv[1] + '</span>' +
-        (started ? ' <span class="pill plan">Plan started</span>' : "") + '</td></tr>';
+        (isPlanStarted(r.skill) ? ' <span class="pill plan">Plan started</span>' : "") + '</td></tr>';
   }).join("");
 }
 
 /* ---------- pages ---------- */
+
+function aboutBlock() {
+  return '<details class="about"><summary>' + esc(D.demoNotes.headline) + '</summary>' +
+    '<ul>' + D.demoNotes.points.map(t => '<li>' + esc(t) + '</li>').join("") + '</ul></details>';
+}
 
 function pageOverview() {
   const stats = [
@@ -177,57 +204,56 @@ function pageOverview() {
   ].map(s => '<div class="stat"><div class="v ' + s[2] + '">' + s[0] + '</div><div class="l">' + s[1] + '</div></div>').join("");
 
   const priority = table("", PRIORITY.map((p, i) =>
-    '<tr data-skill="' + esc(p.skill) + '"><td class="rank">' + (i + 1) + '</td>' +
+    '<tr data-skill="' + esc(p.skill) + '" data-list="priority"><td class="rank">' + (i + 1) + '</td>' +
     '<td class="name">' + esc(p.skill) +
-      '<div class="why">' + people(p.risk.headcount) + ' hold it, impact ' + p.risk.impact + ' of 5. ' + esc(p.risk.location) + '</div></td>' +
+      '<div class="why">' + people(p.risk.headcount) + (p.risk.headcount === 1 ? ' holds it' : ' hold it') + ', impact ' + p.risk.impact + ' of 5. ' + esc(p.risk.location) + '</div></td>' +
     '<td class="num"><span class="pill ' + (p.risk.impact >= 5 || p.risk.headcount <= 2 ? "hi" : "md") + '">' +
       people(p.risk.headcount) + '</span></td></tr>').join(""));
 
   return '<h1 class="h1">Workforce overview</h1>' +
-    '<p class="sub">16 plants and 3 offices. Four job groups. ' + ALL.length + ' skills tracked.</p>' +
+    '<p class="sub">16 plants and 3 offices. Four job groups, about ' + thousands(HEADCOUNT) + ' people, ' + ALL.length + ' skills tracked.</p>' +
+    aboutBlock() +
     '<div class="stats">' + stats + '</div>' +
-    '<div class="sec"><div class="sec-h"><b>Do this first</b><span>ranked by impact, how few people hold it, and gap size</span></div>' + priority + '</div>' +
-    '<div class="sec"><div class="sec-h"><b>Biggest gaps today</b><span>under 40 percent coverage</span></div>' +
-      table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Status</th>', skillRows(GAPS)) + '</div>' +
-    '<p class="foot">Demo numbers. Plants, offices, and job groups are real.</p>';
+    '<div class="sec" id="sec-priority"><div class="sec-h"><b>Do this first</b>' +
+      '<span>ranked by impact, how few people hold it, and gap size</span></div>' + priority + '</div>' +
+    '<div class="sec" id="sec-gaps"><div class="sec-h"><b>Biggest gaps today</b>' +
+      '<span>5 worst of ' + GAPS.length + ' under 40 percent. <a data-goto="skills">See all</a></span></div>' +
+      table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Status</th>', skillRows(TOP_GAPS, "gaps")) + '</div>';
 }
 
 function pageSkills() {
-  const q = state.query.trim().toLowerCase();
-  const rows = ALL.filter(r => !q || r.skill.toLowerCase().includes(q) || r.segment.toLowerCase().includes(q));
+  const q = state.query.trim();
+  const rows = visibleSkills();
 
   return '<h1 class="h1">Skills</h1>' +
-    '<p class="sub">' + (q ? rows.length + ' of ' + ALL.length + ' skills match "' + esc(state.query) + '".'
+    '<p class="sub">' + (q ? rows.length + ' of ' + ALL.length + ' skills match "' + esc(q) + '".'
                            : 'Every tracked skill, lowest coverage first. Click a row for the plan.') + '</p>' +
     '<div class="sec flush">' +
       (rows.length
-        ? table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Status</th>', skillRows(rows))
+        ? table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Status</th>', skillRows(rows, "skills"))
         : '<p class="empty">No skill matches that search.</p>') +
     '</div>';
 }
 
 function pageRisk() {
-  const body = D.successionRisks.slice().sort((a, b) => a.headcount - b.headcount).map(r =>
-    '<tr data-skill="' + esc(r.skill) + '">' +
-      '<td class="name">' + esc(r.skill) + '<div class="why">' + esc(r.note) + '</div></td>' +
-      '<td class="grp">' + esc(r.location) + '</td>' +
+  const body = RISKS_SORTED.map(r =>
+    '<tr data-skill="' + esc(r.skill) + '" data-list="risk">' +
+      '<td class="name">' + esc(r.skill) + '<div class="why">' + esc(r.location) + '</div></td>' +
       '<td class="num">' + r.headcount + '</td>' +
       '<td class="num"><span class="pill ' + (r.impact >= 5 ? "hi" : "md") + '">' + r.impact + ' of 5</span></td></tr>').join("");
 
   return '<h1 class="h1">Succession risk</h1>' +
     '<p class="sub">Skills that sit with a handful of people. If they leave, the work stops until someone else learns it.</p>' +
-    '<div class="sec flush">' + table('<th>Skill</th><th>Where</th><th class="num">People</th><th class="num">Impact</th>', body) + '</div>';
+    '<div class="sec flush">' + table('<th>Skill</th><th class="num">People</th><th class="num">Impact</th>', body) + '</div>';
 }
 
 function pageFuture() {
-  const body = D.futureSkills.slice()
-    .sort((a, b) => (b.targetCoverage - b.currentCoverage) - (a.targetCoverage - a.currentCoverage))
-    .map(f =>
-      '<tr data-skill="' + esc(f.skill) + '">' +
-        '<td class="name">' + esc(f.skill) + '<div class="why">' + esc(f.driver) + '</div></td>' +
-        '<td>' + coverageCell(f.currentCoverage) + '</td>' +
-        '<td class="num">' + f.targetCoverage + '%</td>' +
-        '<td class="num"><span class="pill md">+' + (f.targetCoverage - f.currentCoverage) + ' pts</span></td></tr>').join("");
+  const body = FUTURE_SORTED.map(f =>
+    '<tr data-skill="' + esc(f.skill) + '" data-list="future">' +
+      '<td class="name">' + esc(f.skill) + '<div class="why">' + esc(f.driver) + '</div></td>' +
+      '<td>' + coverageCell(f.currentCoverage) + '</td>' +
+      '<td class="num">' + f.targetCoverage + '%</td>' +
+      '<td class="num"><span class="pill md">+' + (f.targetCoverage - f.currentCoverage) + ' pts</span></td></tr>').join("");
 
   return '<h1 class="h1">Future skills</h1>' +
     '<p class="sub">What the next two years need, and how far short the workforce is today.</p>' +
@@ -248,6 +274,28 @@ function pagePlants() {
       '<div class="grid2">' + cells + '</div></div>';
 }
 
+/* Previous and Next step through the list the skill was opened from, so
+   checking a second skill never means hunting for the section again. */
+function navStrip() {
+  const list = LISTS[state.list];
+  if (!list) return '<div class="crumb"><a data-back="1">Back</a></div>';
+
+  const items = list.items();
+  const i = items.indexOf(state.skill);
+  const prev = i > 0 ? items[i - 1] : null;
+  const next = i > -1 && i < items.length - 1 ? items[i + 1] : null;
+
+  return '<div class="navstrip">' +
+    '<a class="back" data-back="1">' + esc(list.label) + '</a>' +
+    (i > -1 ? '<span class="pos">' + (i + 1) + ' of ' + items.length + '</span>' : "") +
+    '<span class="steps">' +
+      (prev ? '<a data-skill="' + esc(prev) + '" data-list="' + state.list + '" title="' + esc(prev) + '">Previous</a>'
+            : '<span class="off">Previous</span>') +
+      (next ? '<a data-skill="' + esc(next) + '" data-list="' + state.list + '" title="' + esc(next) + '">Next</a>'
+            : '<span class="off">Next</span>') +
+    '</span></div>';
+}
+
 function pageSkill(name) {
   const row = ALL.find(r => r.skill === name);
   const risk = riskFor(name);
@@ -257,19 +305,18 @@ function pageSkill(name) {
   const future = futureFor(skill);
   const plan = actionFor(skill) || (risk ? actionFor(risk.skill) : null);
   const alts = alternatesFor(skill);
-  const holders = risk ? risk.headcount : Math.max(4, Math.round((coverage || 0) / 8));
   const lv = coverage === null ? ["hi", "Tracked as a risk"] : level(coverage);
-  const backTab = TABS.find(t => t.id === state.tab) || TABS[0];
+  const haveIt = row ? Math.round(row.groupSize * row.coverage / 100) : null;
 
   const stats =
-    '<div class="stats" style="margin:24px 0 4px">' +
+    '<div class="stats" style="margin:22px 0 4px">' +
       '<div class="stat"><div class="v">' + (coverage === null ? "-" : coverage + "%") + '</div>' +
-        '<div class="l">of this job group has the skill</div></div>' +
-      '<div class="stat"><div class="v ' + (holders <= 3 ? "bad" : "") + '">' + holders + '</div>' +
-        '<div class="l">' + (holders === 1 ? "person holds it today" : "people hold it today") + '</div></div>' +
-      '<div class="stat"><div class="v">' + (future ? future.targetCoverage + "%" : "-") + '</div>' +
-        '<div class="l">' + (future ? "needed by 2027, " + (future.targetCoverage - future.currentCoverage) + " points short"
-                                    : "no future target set") + '</div></div>' +
+        '<div class="l">' + (haveIt === null ? "not scored across the group"
+          : "of this job group, about " + thousands(haveIt) + " of " + thousands(row.groupSize) + " people") + '</div></div>' +
+      (risk ? '<div class="stat"><div class="v bad">' + risk.headcount + '</div>' +
+        '<div class="l">' + (risk.headcount === 1 ? "holds" : "hold") + ' it at ' + esc(risk.location.split(" (")[0]) + '</div></div>' : "") +
+      (future ? '<div class="stat"><div class="v">' + future.targetCoverage + '%</div>' +
+        '<div class="l">needed by 2027, ' + (future.targetCoverage - future.currentCoverage) + ' points short</div></div>' : "") +
     '</div>';
 
   const riskSec = risk
@@ -284,38 +331,30 @@ function pageSkill(name) {
     : "";
 
   const altSec = alts.length
-    ? '<div class="alts">' + alts.map(a =>
-        '<div class="alt"><b>' + esc(a.method) + '</b><span>' + esc(a.detail) + '</span></div>').join("") + '</div>'
+    ? '<details class="alts"><summary>Other ways to close it</summary>' +
+      alts.map(a => '<div class="alt"><b>' + esc(a.method) + '</b><span>' + esc(a.detail) + '</span></div>').join("") +
+      '</details>'
     : "";
 
   const planSec = plan
-    ? '<div class="sec"><div class="sec-h"><b>How to close it</b><span>' +
-        (alts.length ? "first step, then the backups" : "first step") + '</span></div>' +
+    ? '<div class="sec"><div class="sec-h"><b>How to close it</b><span>first step</span></div>' +
       '<div class="plan"><span class="plan-m">' + esc(plan.method) + '</span><p class="prose">' + esc(plan.detail) + '</p></div>' +
       altSec +
       '<label class="check"><input type="checkbox" id="plan-box"' + (isPlanStarted(skill) ? " checked" : "") + '>' +
         ' Development plan started</label></div>'
     : "";
 
-  const people = '<div class="sec"><div class="sec-h"><b>Who holds it today</b><span>names hidden in the demo</span></div>' +
-    '<div class="people">' +
-      Array.from({ length: Math.min(holders, 8) }, (_, i) =>
-        '<div class="person"><i>' + String.fromCharCode(65 + (i * 7) % 26) + String.fromCharCode(66 + (i * 3) % 26) +
-        '</i>Employee ' + (1001 + i * 37) + '</div>').join("") +
-      (holders > 8 ? '<div class="person"><i>+</i>' + (holders - 8) + ' more</div>' : "") +
-    '</div></div>';
-
-  return '<div class="crumb"><a data-back="1">' + backTab.label + '</a> / ' + esc(skill) + '</div>' +
+  return navStrip() +
     '<div class="skill-head"><div><h1 class="h1">' + esc(skill) + '</h1><p class="sub">' + esc(segment) + '</p></div>' +
       '<span class="pill ' + lv[0] + '">' + lv[1] + '</span></div>' +
-    stats + riskSec + futureSec + planSec + people;
+    stats + riskSec + futureSec + planSec;
 }
 
 /* ---------- render ---------- */
 
 function renderTabs() {
   document.getElementById("tabs").innerHTML = TABS.map(t =>
-    '<div class="tab' + (state.tab === t.id ? " on" : "") + '" data-tab="' + t.id + '">' + t.label +
+    '<div class="tab' + (!state.skill && state.tab === t.id ? " on" : "") + '" data-tab="' + t.id + '">' + t.label +
     (t.count ? '<em>' + t.count + '</em>' : "") + '</div>').join("");
 }
 
@@ -331,12 +370,32 @@ function render() {
   else page.innerHTML = pagePlants();
 
   const box = document.getElementById("plan-box");
-  if (box) {
-    box.addEventListener("change", () => setPlanStarted(state.skill, box.checked));
-  }
+  if (box) box.addEventListener("change", () => setPlanStarted(state.skill, box.checked));
 
   writeHash();
-  window.scrollTo(0, 0);
+
+  // Coming back from a skill lands on the section it was opened from,
+  // not at the top of the page.
+  const anchor = state.scrollTo && document.getElementById(state.scrollTo);
+  state.scrollTo = null;
+  if (anchor) anchor.scrollIntoView({ block: "start" });
+  else window.scrollTo(0, 0);
+}
+
+function openSkill(name, listId) {
+  state.skill = name;
+  if (listId) state.list = listId;
+  render();
+}
+
+function goBack() {
+  const list = LISTS[state.list];
+  state.skill = null;
+  if (list) {
+    state.tab = list.tab;
+    state.scrollTo = list.anchor;
+  }
+  render();
 }
 
 document.getElementById("tabs").addEventListener("click", e => {
@@ -344,19 +403,42 @@ document.getElementById("tabs").addEventListener("click", e => {
   if (!tab) return;
   state.tab = tab.dataset.tab;
   state.skill = null;
+  state.list = null;
   render();
 });
 
 document.getElementById("page").addEventListener("click", e => {
-  if (e.target.closest("[data-back]")) { state.skill = null; return render(); }
+  if (e.target.closest("[data-back]")) return goBack();
+
+  const jump = e.target.closest("[data-goto]");
+  if (jump) {
+    state.tab = jump.dataset.goto;
+    state.skill = null;
+    state.list = null;
+    return render();
+  }
+
   const row = e.target.closest("[data-skill]");
-  if (row) { state.skill = row.dataset.skill; render(); }
+  if (row) openSkill(row.dataset.skill, row.dataset.list);
 });
 
-// Typing anywhere in the search box jumps to the Skills table and filters it.
+// Left and right arrows step through the same list while a skill is open.
+document.addEventListener("keydown", e => {
+  if (!state.skill || !LISTS[state.list]) return;
+  if (e.target.tagName === "INPUT") return;
+  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+
+  const items = LISTS[state.list].items();
+  const i = items.indexOf(state.skill);
+  if (i === -1) return;
+  const next = e.key === "ArrowRight" ? items[i + 1] : items[i - 1];
+  if (next) { e.preventDefault(); openSkill(next); }
+});
+
 document.getElementById("search").addEventListener("input", e => {
   state.query = e.target.value;
   state.skill = null;
+  state.list = null;
   state.tab = "skills";
   render();
 });
