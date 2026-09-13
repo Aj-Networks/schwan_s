@@ -85,5 +85,6 @@ Coverage percentages, per-site headcounts, and employee records are made up. Com
 2. **Click row 1, 60 seconds.** "One person knows frozen dough formulation, at the Marshall R&D center. Here is why that matters, here is what it needs to look like by 2027, and here is the first step: pair the expert with two mentees. Check the box, the plan is tracked."
 3. **Skills tab, 30 seconds.** "Every skill, lowest coverage first, so nothing hides."
 4. **Future skills, 30 seconds.** "Sioux Falls opens and needs automation techs. We are at 34 percent and need 65."
-5. **Employee view, 40 seconds.** "Same data, seen by Sam, the refrigeration tech at Marshall. He is one of two people who hold the ammonia certification, and his step is to pass it on. The checkbox is the same one the manager sees."
-6. **Close, 20 seconds.** "No frameworks, no build, no internet needed. Four files, and every number is sourced."
+5. **Counter, 15 seconds.** "Every plan I tick shows in the corner. Click it and you get the list, with who owns each one and an undo. Twelve clicks in, you still know what you committed to."
+6. **Employee view, 40 seconds.** "Same data, seen by Sam, the refrigeration tech at Marshall. He is one of two people who hold the ammonia certification, and his step is to pass it on. The checkbox is the same one the manager sees."
+7. **Close, 20 seconds.** "No frameworks, no build, no internet needed. Four files, and every number is sourced."
