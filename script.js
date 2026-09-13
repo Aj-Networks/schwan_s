@@ -322,7 +322,7 @@ function pagePeople() {
       '<p class="prose">' + esc(a.detail) + '</p>' +
       '<div class="why">' + (fut ? "Needed at " + fut.targetCoverage + " percent by 2027. " + esc(fut.driver)
         : row ? "Only " + row.coverage + " percent of this job group can do it today." : "") + '</div>' +
-      '<label class="check"><input type="checkbox" class="emp-plan" data-skill="' + esc(skill) + '"' +
+      '<label class="check"><input type="checkbox" class="emp-plan" data-plan="' + esc(skill) + '"' +
         (isPlanStarted(skill) ? " checked" : "") + '> Development plan started</label>' +
     '</div>';
   }).join("");
@@ -345,7 +345,7 @@ function pagePeople() {
             '<p class="prose">You are one of ' + people(r.headcount) + ' at ' +
               esc(r.location.split(" (")[0]) + ' who can do this. ' + esc(r.note) + '</p>' +
             (pass ? '<div class="why">Your step to pass it on: ' + esc(pass.method.toLowerCase()) + '. ' + esc(pass.detail) + '</div>' +
-              '<label class="check"><input type="checkbox" class="emp-plan" data-skill="' + esc(r.skill) + '"' +
+              '<label class="check"><input type="checkbox" class="emp-plan" data-plan="' + esc(r.skill) + '"' +
               (isPlanStarted(r.skill) ? " checked" : "") + '> Knowledge transfer started</label>' : "") +
           '</div>';
         }).join("") + '</div>'
@@ -470,8 +470,25 @@ function pageSkill(name) {
 
 function renderTabs() {
   document.getElementById("tabs").innerHTML = TABS.map(t =>
-    '<div class="tab' + (!state.skill && state.tab === t.id ? " on" : "") + '" data-tab="' + t.id + '">' + t.label +
+    '<div class="tab' + (state.tab === t.id ? " on" : "") + '" data-tab="' + t.id + '">' + t.label +
     (t.count ? '<em>' + t.count + '</em>' : "") + '</div>').join("");
+}
+
+// Ticking a box should visibly do something on the spot, not only on the next render.
+function markSaved(input) {
+  const label = input.closest(".check");
+  if (!label) return;
+  label.classList.toggle("done", input.checked);
+  let note = label.querySelector(".saved");
+  if (!note) {
+    note = document.createElement("span");
+    note.className = "saved";
+    label.appendChild(note);
+  }
+  note.textContent = input.checked ? "Saved" : "Cleared";
+  note.classList.remove("flash");
+  void note.offsetWidth;
+  note.classList.add("flash");
 }
 
 function render() {
@@ -487,12 +504,18 @@ function render() {
   else page.innerHTML = pagePlants();
 
   const box = document.getElementById("plan-box");
-  if (box) box.addEventListener("change", () => setPlanStarted(state.skill, box.checked));
+  if (box) box.addEventListener("change", () => {
+    setPlanStarted(state.skill, box.checked);
+    markSaved(box);
+  });
 
   // Employee checkboxes write the same keys as the manager's, so a plan
   // started on one screen shows as started on the other.
   page.querySelectorAll(".emp-plan").forEach(cb =>
-    cb.addEventListener("change", () => setPlanStarted(cb.dataset.skill, cb.checked)));
+    cb.addEventListener("change", () => {
+      setPlanStarted(cb.dataset.plan, cb.checked);
+      markSaved(cb);
+    }));
 
   writeHash();
 
@@ -542,6 +565,10 @@ document.getElementById("page").addEventListener("click", e => {
     state.list = null;
     return render();
   }
+
+  // A checkbox and its label are controls, not links. Without this, ticking a
+  // plan box was read as "open that skill" and the page changed under you.
+  if (e.target.closest("label, input")) return;
 
   const row = e.target.closest("[data-skill]");
   if (row) openSkill(row.dataset.skill, row.dataset.list);

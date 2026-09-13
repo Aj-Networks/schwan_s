@@ -335,6 +335,27 @@ td.rank { font-family: "JetBrains Mono", monospace; color: var(--faint); font-si
   cursor: pointer;
 }
 .check input { accent-color: var(--accent); }
+.check.done { color: var(--ok-fg); font-weight: 500; }
+
+/* says "Saved" where you clicked, then fades, so the click has a visible result */
+.saved {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ok-fg);
+  background: var(--ok-bg);
+  border-radius: 20px;
+  padding: 2px 8px;
+  opacity: 0;
+}
+
+.saved.flash { animation: fade 2.2s ease forwards; }
+
+@keyframes fade {
+  0% { opacity: 0; transform: translateX(-4px); }
+  12% { opacity: 1; transform: none; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
 
 .people { display: flex; flex-wrap: wrap; gap: 7px; }
 .person {
