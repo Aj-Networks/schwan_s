@@ -3,40 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillSight — Workforce Skills Intelligence</title>
+<title>SkillSight - Workforce Skills Intelligence</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-  <h1><span class="badge">🧭</span> SkillSight</h1>
-  <p>Workforce skills intelligence for Schwan's — heat map, succession risk, and readiness signals across 16 plants and 3 corporate offices.</p>
+  <h1>SkillSight</h1>
+  <p>Workforce skills intelligence for Schwan's, across 16 plants and 3 corporate offices.</p>
 </header>
 
 <nav class="tabs">
-  <button class="tab-btn active" data-tab="heatmap">📊 Skills Heat Map</button>
-  <button class="tab-btn" data-tab="gaps">⚠️ Capability Gaps</button>
-  <button class="tab-btn" data-tab="risk">🎯 Succession Risk</button>
-  <button class="tab-btn" data-tab="plants">🏭 Plant Network</button>
+  <button class="tab-btn active" data-tab="overview">Overview</button>
+  <button class="tab-btn" data-tab="heatmap">Skills Heat Map</button>
+  <button class="tab-btn" data-tab="gaps">Capability Gaps</button>
+  <button class="tab-btn" data-tab="risk">Succession Risk</button>
+  <button class="tab-btn" data-tab="future">Future Skills</button>
+  <button class="tab-btn" data-tab="plants">Plant Network</button>
 </nav>
 
 <main>
-  <section id="heatmap" class="tab-panel active">
+  <section id="overview" class="tab-panel active">
+    <p class="tagline">What skills exist, where they're short, who's a single point of failure, and what to do about it.</p>
+
+    <div class="stat-row" id="stat-grid"></div>
+
+    <h2>Skills Coverage</h2>
+    <div id="heatmap-grid-preview" class="heat-grid"></div>
+    <p class="hint">Illustrative demo data. Plant, office, and segment names are real.</p>
+  </section>
+
+  <section id="heatmap" class="tab-panel">
     <h2>Coverage by Workforce Segment</h2>
-    <p class="hint">Percent of employees in the segment proficient in each skill. Darker red = lower coverage = bigger gap.</p>
-    <div id="heatmap-container"></div>
+    <p class="hint">Color = coverage. Dark red is a critical gap, green is well covered.</p>
+    <div class="filter-bar">
+      <label for="segment-filter">Segment:</label>
+      <select id="segment-filter">
+        <option value="all">All Segments</option>
+      </select>
+    </div>
+    <div id="heatmap-grid" class="heat-grid"></div>
   </section>
 
   <section id="gaps" class="tab-panel">
     <h2>Greatest Capability Gaps</h2>
-    <p class="hint">Skills below 40% coverage, ranked lowest first — where readiness risk is highest right now.</p>
-    <div id="gaps-container"></div>
+    <p class="hint">Skills below 40% coverage, ranked lowest first.</p>
+    <div class="chart-box"><canvas id="gaps-chart"></canvas></div>
+    <div id="gaps-container" class="detail-list"></div>
   </section>
 
   <section id="risk" class="tab-panel">
     <h2>Knowledge Concentration &amp; Succession Risk</h2>
-    <p class="hint">Critical skills held by a small number of people. Losing any one of them is a readiness gap.</p>
-    <div id="risk-container"></div>
+    <p class="hint">x-axis: concentration risk (fewer holders, further right). y-axis: business impact if lost.</p>
+    <div class="chart-box"><canvas id="risk-matrix-chart"></canvas></div>
+    <div id="risk-container" class="detail-list"></div>
+  </section>
+
+  <section id="future" class="tab-panel">
+    <h2>Future Skills Needed</h2>
+    <p class="hint">Current vs. needed coverage, tied to real business drivers.</p>
+    <div class="chart-box"><canvas id="future-chart"></canvas></div>
+    <div id="future-container" class="detail-list"></div>
   </section>
 
   <section id="plants" class="tab-panel">
@@ -46,9 +75,10 @@
 </main>
 
 <footer>
-  <p>Southwest MN Hacks 2026 — Schwan's Prompt 01: Talent Readiness &amp; Skills Intelligence Platform. Demo data is fictional; locations are real.</p>
+  <p>Southwest MN Hacks 2026 - Schwan's Prompt 01: Talent Readiness &amp; Skills Intelligence Platform.</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="data.js"></script>
 <script src="script.js"></script>
 </body>
