@@ -96,17 +96,27 @@ Per Devpost / event rules, the submission must include:
 | Item | Status | File |
 |---|---|---|
 | Master reference doc | Done | `PROJECT.md` (this file) |
-| Project brief (.docx) | Draft generated | `exports/Schwans_Project_Brief.docx` |
-| Pitch deck (.pptx) | Draft skeleton generated | `exports/Schwans_Pitch_Deck.pptx` |
-| Solution name/description | **Not yet defined** | - |
-| Team members | **Not yet defined** | - |
-| GitHub repo / live demo link | **Not yet defined** | - |
-| Screenshots / demo video | **Not yet defined** | - |
+| Solution name and description | Done | SkillSight. Shows what skills Schwan's employees have, where skills are missing, and where a critical skill is known by too few people. |
+| Working app | Done | `index.html`, `style.css`, `script.js`, `data.js` |
+| Team members | Done | Ajay Angdembe, solo |
+| GitHub repo | Done | https://github.com/Aj-Networks/schwan_s |
+| Devpost copy | Done | `SUBMISSION.md` |
+| Screenshots | Done | `screenshots/` |
+| Live demo link | Pending | GitHub Pages, needs the repo to be public |
+| Project brief (.docx) | Draft only | `exports/Schwans_Project_Brief.docx` |
+| Pitch deck (.pptx) | Draft only | `exports/Schwans_Pitch_Deck.pptx` |
 
-## Open Decisions (need your input to finish the brief/deck)
+## Build Notes
 
-1. Solution name and one-line description
-2. Core feature set for the demo (e.g., skills heat map, AI career advisor, succession risk dashboard - pick a lane, not all five)
-3. Tech stack
-4. Team member names/roles
-5. GitHub repo URL once created
+- Layout: top bar, tabs, centered content. No side column.
+- Five pages, one per challenge question, plus a skill detail page reached by clicking any row.
+- Light and dark themes, saved per browser.
+- "Development plan started" checkboxes persist in localStorage, so the demo carries real state.
+- No frameworks and no CDN scripts, so the app runs with no internet once the page is open.
+- Demo numbers, real locations. The app says so on screen.
+
+## Open Items
+
+1. Make the repo public and turn on GitHub Pages for a live demo link, or submit with the repo link and a video.
+2. Regenerate the brief and deck in plain language, or drop them from the repo.
+3. Bonus RFID/QR/LED track: only if the organizers have loaner hardware.
