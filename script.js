@@ -176,15 +176,18 @@ function table(head, body) {
     '<tbody>' + body + '</tbody></table></div>';
 }
 
-function skillRows(rows, listId) {
+// showStatus is off inside a status group: repeating "Critical gap" on every
+// row of the Critical gap folder is noise.
+function skillRows(rows, listId, showStatus) {
   return rows.map(r => {
     const lv = level(r.coverage);
+    const started = isPlanStarted(r.skill) ? '<span class="pill plan">Plan started</span>' : "";
     return '<tr data-skill="' + esc(r.skill) + '" data-list="' + listId + '">' +
       '<td class="name">' + esc(r.skill) + '</td>' +
       '<td class="grp">' + esc(r.segment) + '</td>' +
       '<td>' + coverageCell(r.coverage) + '</td>' +
-      '<td class="num"><span class="pill ' + lv[0] + '">' + lv[1] + '</span>' +
-        (isPlanStarted(r.skill) ? ' <span class="pill plan">Plan started</span>' : "") + '</td></tr>';
+      '<td class="num">' + (showStatus ? '<span class="pill ' + lv[0] + '">' + lv[1] + '</span> ' : "") +
+        started + '</td></tr>';
   }).join("");
 }
 
@@ -218,21 +221,40 @@ function pageOverview() {
       '<span>ranked by impact, how few people hold it, and gap size</span></div>' + priority + '</div>' +
     '<div class="sec" id="sec-gaps"><div class="sec-h"><b>Biggest gaps today</b>' +
       '<span>5 worst of ' + GAPS.length + ' under 40 percent. <a data-goto="skills">See all</a></span></div>' +
-      table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Status</th>', skillRows(TOP_GAPS, "gaps")) + '</div>';
+      table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Plan</th>', skillRows(TOP_GAPS, "gaps")) + '</div>';
 }
 
 function pageSkills() {
   const q = state.query.trim();
   const rows = visibleSkills();
+  const head = '<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Status</th>';
+  const headPlain = '<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Plan</th>';
+
+  // A search wants one flat answer, not folders to open.
+  if (q) {
+    return '<h1 class="h1">Skills</h1>' +
+      '<p class="sub">' + rows.length + ' of ' + ALL.length + ' skills match "' + esc(q) + '".</p>' +
+      '<div class="sec flush">' +
+        (rows.length ? table(head, skillRows(rows, "skills", true)) : '<p class="empty">No skill matches that search.</p>') +
+      '</div>';
+  }
+
+  // Grouped by status, worst first, and only the critical group is open.
+  // Twenty rows at once tells you nothing about where to look.
+  const bands = [
+    { cls: "hi", label: "Critical gap", note: "under 40 percent", open: true, rows: rows.filter(r => r.coverage < 40) },
+    { cls: "md", label: "Needs attention", note: "40 to 59 percent", open: false, rows: rows.filter(r => r.coverage >= 40 && r.coverage < 60) },
+    { cls: "ok", label: "Well covered", note: "60 percent and up", open: false, rows: rows.filter(r => r.coverage >= 60) }
+  ];
 
   return '<h1 class="h1">Skills</h1>' +
-    '<p class="sub">' + (q ? rows.length + ' of ' + ALL.length + ' skills match "' + esc(q) + '".'
-                           : 'Every tracked skill, lowest coverage first. Click a row for the plan.') + '</p>' +
-    '<div class="sec flush">' +
-      (rows.length
-        ? table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Status</th>', skillRows(rows, "skills"))
-        : '<p class="empty">No skill matches that search.</p>') +
-    '</div>';
+    '<p class="sub">All ' + ALL.length + ' tracked skills, grouped by how well they are covered.</p>' +
+    '<div class="sec flush">' + bands.map(b =>
+      '<details class="group"' + (b.open ? " open" : "") + '>' +
+        '<summary><span class="pill ' + b.cls + '">' + b.label + '</span>' +
+          '<em>' + b.rows.length + ' skills, ' + b.note + '</em></summary>' +
+        '<div class="group-b">' + table(headPlain, skillRows(b.rows, "skills")) + '</div>' +
+      '</details>').join("") + '</div>';
 }
 
 function pageRisk() {
@@ -261,17 +283,36 @@ function pageFuture() {
 }
 
 function pagePlants() {
-  const cells = D.plants.map(p => {
+  // Same idea as the skills page: folders, not an eighteen row wall.
+  const kindOf = p => /Corporate/.test(p) ? "offices"
+    : /Pizza/.test(p) ? "pizza"
+    : /Packaging/.test(p) ? "packaging"
+    : "desserts";
+
+  const bands = [
+    { id: "pizza", label: "Pizza and appetizer plants", open: true },
+    { id: "desserts", label: "Frozen dessert plants", open: false },
+    { id: "packaging", label: "Packaging", open: false },
+    { id: "offices", label: "Corporate offices", open: false }
+  ];
+
+  const cell = p => {
     const open = p.indexOf("(");
     const name = open > -1 ? p.slice(0, open).trim() : p;
     const kind = open > -1 ? p.slice(open + 1).replace(")", "") : "";
     return '<div>' + esc(name) + '<span>' + esc(kind) + '</span></div>';
-  }).join("");
+  };
 
   return '<h1 class="h1">Plants and offices</h1>' +
     '<p class="sub">Every site the skills data covers. Sioux Falls is still being built.</p>' +
-    '<div class="sec"><div class="sec-h"><b>Network</b><span>' + D.plants.length + ' locations</span></div>' +
-      '<div class="grid2">' + cells + '</div></div>';
+    '<div class="sec flush">' + bands.map(b => {
+      const list = D.plants.filter(p => kindOf(p) === b.id);
+      return '<details class="group"' + (b.open ? " open" : "") + '>' +
+        '<summary><span class="pill plan">' + b.label + '</span><em>' + list.length +
+          (list.length === 1 ? " site" : " sites") + '</em></summary>' +
+        '<div class="group-b"><div class="grid2">' + list.map(cell).join("") + '</div></div>' +
+      '</details>';
+    }).join("") + '</div>';
 }
 
 /* Previous and Next step through the list the skill was opened from, so
