@@ -12,13 +12,15 @@ Schwan's runs more than a dozen US facilities across 4 job groups (Manufacturing
 
 SkillSight answers the five questions in the challenge, one page each, plus a view built for the employee rather than the manager.
 
+The tabs run in the order the challenge asks its questions.
+
 | Page | Answers |
 |---|---|
-| **Overview** | A ranked "do this first" list, plus where coverage is lowest |
-| **Skills** | What skills exist across the workforce and how well each is covered |
-| **Succession risk** | Which skills sit with three people or fewer, where, and how much it hurts if they leave |
-| **Future skills** | What the next two years need and how far short the workforce is now |
-| **Employee view** | The same data seen by the person: what they know, what only they know, and their next step |
+| **Overview** | Question 4: where the greatest gaps and succession risks are, as a ranked order of work |
+| **Skills** | Question 1: what skills exist across the workforce and how well each is covered |
+| **Future skills** | Question 2: what the next two years need and how far short the workforce is now |
+| **Succession risk** | Question 3: which skills sit with three people or fewer, where, and how much it hurts if they leave |
+| **Employee view** | Question 5: the same data seen by the person, what they know, what only they know, and their next step |
 | **Plants and offices** | Every site the data covers |
 
 Click any row to open that skill. The skill page shows coverage, how many people hold it, why it is a risk, why it will be needed, the first step to close the gap with backup options, and **where the data would come from in a real deployment**. Checking "development plan started" is saved in the browser, so it is still there after a reload.

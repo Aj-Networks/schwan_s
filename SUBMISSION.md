@@ -23,6 +23,7 @@ Ajay Angdembe (solo)
 ## Links
 
 - Repo: https://github.com/Aj-Networks/schwan_s
+- Five-questions walkthrough deck: `exports/Schwans_Five_Questions.pptx` (one slide per challenge question, in order, each noting where in the app it lives and where its numbers come from)
 - Live demo: *(add the GitHub Pages link once the repo is public, or leave this out and use the video)*
 - Video: *(add link)*
 
