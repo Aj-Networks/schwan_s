@@ -72,6 +72,57 @@ const SKILLSIGHT_DATA = {
     }
   ],
 
+  // Where a real deployment would read each skill from. The point judges ask about:
+  // this is not a new dataset to build, it is systems the company already runs.
+  dataSources: {
+    bySegment: {
+      "Manufacturing & Logistics": "Plant training records, equipment certifications, and maintenance work order sign-offs.",
+      "Retail Sales & Distribution": "HR job codes, route assignments, and sales system activity.",
+      "Foodservice Sales": "HR job codes and customer account assignments.",
+      "Corporate": "HR job codes, learning records, and project assignment history."
+    },
+    bySkill: {
+      "Refrigeration & Ammonia Systems": {
+        systems: "Process safety training records, RETA or EPA certification files, and maintenance sign-offs.",
+        note: "Ammonia systems holding 10,000 pounds or more are a covered process under OSHA's process safety management rule. The list of trained operators, and the three year refresher dates, is kept by law. Nobody has to build it.",
+        source: "OSHA 29 CFR 1910.119", url: "https://www.osha.gov/laws-regs/standardinterpretations/2016-07-21"
+      },
+      "Food Safety / HACCP": {
+        systems: "Food safety plan records and training files.",
+        note: "FDA's preventive controls rule requires each facility to name a Preventive Controls Qualified Individual in its food safety plan, so the plant already knows who is qualified.",
+        source: "FDA, FSMA questions and answers", url: "https://www.fda.gov/food/food-safety-modernization-act-fsma/frequently-asked-questions-fsma"
+      },
+      "PLC / Automation Programming": {
+        systems: "Maintenance certifications, vendor training records, and work order history.",
+        note: "Controls work is signed off by name in the maintenance system, which is the practical record of who can actually do it, not just who took the course."
+      },
+      "Pizza Line Configuration": {
+        systems: "None. This skill has no system of record anywhere.",
+        note: "That is the finding, not a gap in the tool. The setup lives with two operators and is written down nowhere, which is exactly why the first step is to document it."
+      },
+      "Packaging Equipment Maintenance": {
+        systems: "Equipment maker training records and maintenance work order history."
+      },
+      "R&D / Food Science": {
+        systems: "HR job codes and project assignment history.",
+        note: "Formulation knowledge is traceable through who owned which product project."
+      },
+      "Legal / Compliance": {
+        systems: "HR job codes and matter assignment records."
+      },
+      "Data Analytics": {
+        systems: "Learning records and reporting tool access logs.",
+        note: "Who has access to the reporting tools is a fair first proxy for who can use them."
+      },
+      "Menu / Culinary Consulting": {
+        systems: "HR job codes and customer account assignments."
+      },
+      "Lean / Six Sigma": {
+        systems: "Certification records and improvement project history."
+      }
+    }
+  },
+
   // Three sample profiles so the tool can be seen from the employee's side,
   // not only the manager's. Same plan data, same saved checkboxes.
   employees: [
