@@ -54,10 +54,17 @@ script.js     app logic and page rendering
 data.js       the data the app reads
 verify.js     self-check, run with node
 FACTS.md      every outside claim, its source, and what was cut
-exports/      the deck and the written brief
+BRIEF.md      the written brief, readable here in the browser
+exports/      the deck and the brief as PDF, PowerPoint and Word
 tools/        generators for the deck and the brief, plus a layout checker
 screenshots/  the pages, captured from the app
 ```
+
+## Read the brief
+
+The full write-up is [BRIEF.md](BRIEF.md), which GitHub renders in the browser: abstract, method, results with tables, discussion, references and four appendices.
+
+Same document in other formats: [PDF](exports/Schwans_Project_Brief.pdf) for the formatted APA layout, [Word](exports/Schwans_Project_Brief.docx) to edit. The deck is [SkillSight.pdf](exports/SkillSight.pdf) to flip through in the browser, or [SkillSight.pptx](exports/SkillSight.pptx) with the speaker notes.
 
 ## About the data
 
