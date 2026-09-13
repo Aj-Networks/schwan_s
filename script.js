@@ -114,6 +114,7 @@ const TABS = [
   { id: "skills", label: "Skills", count: ALL.length },
   { id: "risk", label: "Succession risk", count: D.successionRisks.length },
   { id: "future", label: "Future skills", count: D.futureSkills.length },
+  { id: "people", label: "Employee view", count: D.employees.length },
   { id: "plants", label: "Plants and offices", count: D.plants.length }
 ];
 
@@ -127,7 +128,7 @@ const LISTS = {
   future:   { label: "Future skills", tab: "future", anchor: null, items: () => FUTURE_SORTED.map(f => f.skill) }
 };
 
-const state = { tab: "overview", skill: null, list: null, query: "", scrollTo: null };
+const state = { tab: "overview", skill: null, list: null, query: "", scrollTo: null, person: D.employees[0].id };
 
 function visibleSkills() {
   const q = state.query.trim().toLowerCase();
@@ -195,7 +196,11 @@ function skillRows(rows, listId, showStatus) {
 
 function aboutBlock() {
   return '<details class="about"><summary>' + esc(D.demoNotes.headline) + '</summary>' +
-    '<ul>' + D.demoNotes.points.map(t => '<li>' + esc(t) + '</li>').join("") + '</ul></details>';
+    '<ul>' + D.demoNotes.points.map(t => '<li>' + esc(t) + '</li>').join("") +
+    D.demoNotes.sources.map(src =>
+      '<li>' + esc(src.fact) + ' <a href="' + esc(src.url) + '" target="_blank" rel="noopener">' +
+      esc(src.source) + '</a></li>').join("") +
+    '</ul></details>';
 }
 
 function pageOverview() {
@@ -284,6 +289,71 @@ function pageFuture() {
     '<p class="sub">What the next two years need, and how far short the workforce is today.</p>' +
     '<p class="q standalone">Answers: what skills will be needed to support future business and technology strategies</p>' +
     '<div class="sec flush">' + table('<th>Skill</th><th>Today</th><th class="num">Needed</th><th class="num">Gap</th>', body) + '</div>';
+}
+
+function pagePeople() {
+  const person = D.employees.find(e => e.id === state.person) || D.employees[0];
+
+  const picker = '<div class="picker">' + D.employees.map(e =>
+    '<div class="who' + (e.id === person.id ? " on" : "") + '" data-person="' + esc(e.id) + '">' +
+      '<b>' + esc(e.name) + '</b><span>' + esc(e.role) + '</span></div>').join("") + '</div>';
+
+  // Where this person is one of very few holders. This is the line that makes
+  // knowledge concentration personal instead of a number on a manager's screen.
+  const rare = person.has.map(skill => riskFor(skill)).filter(Boolean);
+
+  const held = person.has.map(skill => {
+    const row = ALL.find(r => r.skill === skill);
+    const cov = row ? row.coverage : null;
+    const thin = riskFor(skill);
+    return '<tr data-skill="' + esc(skill) + '" data-list="skills"><td class="name">' + esc(skill) + '</td>' +
+      '<td>' + (cov === null ? "" : coverageCell(cov)) + '</td>' +
+      '<td class="num">' + (thin ? '<span class="pill hi">1 of ' + thin.headcount + ' here</span>' : "") + '</td></tr>';
+  }).join("");
+
+  const plan = person.learning.map(skill => {
+    const a = actionFor(skill);
+    const fut = futureFor(skill);
+    const row = ALL.find(r => r.skill === skill);
+    if (!a) return "";
+    return '<div class="planrow">' +
+      '<div class="planrow-h"><b data-skill="' + esc(skill) + '" data-list="skills">' + esc(skill) + '</b>' +
+        '<span class="pill plan">' + esc(a.method) + '</span></div>' +
+      '<p class="prose">' + esc(a.detail) + '</p>' +
+      '<div class="why">' + (fut ? "Needed at " + fut.targetCoverage + " percent by 2027. " + esc(fut.driver)
+        : row ? "Only " + row.coverage + " percent of this job group can do it today." : "") + '</div>' +
+      '<label class="check"><input type="checkbox" class="emp-plan" data-skill="' + esc(skill) + '"' +
+        (isPlanStarted(skill) ? " checked" : "") + '> Development plan started</label>' +
+    '</div>';
+  }).join("");
+
+  return '<h1 class="h1">Employee view</h1>' +
+    '<p class="sub">The same data seen by the person, not the manager. Sample profiles.</p>' +
+    '<p class="q standalone">Answers: how can employees close skill gaps through training, mentoring, certifications, job rotations, or project experiences</p>' +
+    picker +
+    '<div class="skill-head" style="margin-top:22px"><div>' +
+      '<h2 class="h1">' + esc(person.name) + '</h2>' +
+      '<p class="sub">' + esc(person.role) + ' at ' + esc(person.site) + '. ' + person.years + ' years.</p></div>' +
+      '<span class="pill ' + (rare.length ? "hi" : "ok") + '">' +
+        (rare.length ? "Knowledge to pass on" : "No concentration risk") + '</span></div>' +
+    (rare.length
+      ? '<div class="sec"><div class="sec-h"><b>You are one of the few</b><span>' + esc(person.note) + '</span></div>' +
+        rare.map(r => {
+          const pass = actionFor(r.skill) || actionFor(r.skill.split(" - ")[0]);
+          return '<div class="planrow"><div class="planrow-h"><b data-skill="' + esc(r.skill) + '" data-list="risk">' +
+            esc(r.skill) + '</b><span class="pill hi">1 of ' + r.headcount + '</span></div>' +
+            '<p class="prose">You are one of ' + people(r.headcount) + ' at ' +
+              esc(r.location.split(" (")[0]) + ' who can do this. ' + esc(r.note) + '</p>' +
+            (pass ? '<div class="why">Your step to pass it on: ' + esc(pass.method.toLowerCase()) + '. ' + esc(pass.detail) + '</div>' +
+              '<label class="check"><input type="checkbox" class="emp-plan" data-skill="' + esc(r.skill) + '"' +
+              (isPlanStarted(r.skill) ? " checked" : "") + '> Knowledge transfer started</label>' : "") +
+          '</div>';
+        }).join("") + '</div>'
+      : '') +
+    '<div class="sec"><div class="sec-h"><b>Skills you have</b><span>click one for the full picture</span></div>' +
+      table('<th>Skill</th><th>Coverage in your job group</th><th class="num">Rarity</th>', held) + '</div>' +
+    '<div class="sec"><div class="sec-h"><b>Your development plan</b><span>' + person.learning.length +
+      (person.learning.length === 1 ? ' skill' : ' skills') + ' in progress</span></div>' + plan + '</div>';
 }
 
 function pagePlants() {
@@ -413,10 +483,16 @@ function render() {
   else if (state.tab === "skills") page.innerHTML = pageSkills();
   else if (state.tab === "risk") page.innerHTML = pageRisk();
   else if (state.tab === "future") page.innerHTML = pageFuture();
+  else if (state.tab === "people") page.innerHTML = pagePeople();
   else page.innerHTML = pagePlants();
 
   const box = document.getElementById("plan-box");
   if (box) box.addEventListener("change", () => setPlanStarted(state.skill, box.checked));
+
+  // Employee checkboxes write the same keys as the manager's, so a plan
+  // started on one screen shows as started on the other.
+  page.querySelectorAll(".emp-plan").forEach(cb =>
+    cb.addEventListener("change", () => setPlanStarted(cb.dataset.skill, cb.checked)));
 
   writeHash();
 
@@ -455,6 +531,9 @@ document.getElementById("tabs").addEventListener("click", e => {
 
 document.getElementById("page").addEventListener("click", e => {
   if (e.target.closest("[data-back]")) return goBack();
+
+  const who = e.target.closest("[data-person]");
+  if (who) { state.person = who.dataset.person; return render(); }
 
   const jump = e.target.closest("[data-goto]");
   if (jump) {
