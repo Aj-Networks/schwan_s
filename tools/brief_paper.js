@@ -1,6 +1,11 @@
 /* SkillSight project brief, formatted to APA 7 (professional paper):
    title page, abstract with keywords, table of contents, levelled headings,
-   APA tables and figure, reference list with hanging indents, appendices. */
+   APA tables, reference list with hanging indents, appendices.
+
+   Writes a .docx. The repository publishes the PDF export and BRIEF.md, the
+   plain-text rendering, because GitHub cannot preview Word files.
+
+   Usage: node tools/brief_paper.js out.docx  */
 
 const {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, PageBreak,

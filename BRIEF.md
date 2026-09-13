@@ -6,8 +6,8 @@ Challenge Prompt 01: Talent Readiness and Skills Intelligence Platform
 September 13, 2026
 
 *This is the plain-text rendering of the project brief, so it can be read in the browser.
-The formatted APA version is [Schwans_Project_Brief.pdf](Schwans_Project_Brief.pdf), and the
-editable original is [Schwans_Project_Brief.docx](Schwans_Project_Brief.docx).*
+The formatted APA version, with page numbers and the full contents field, is
+[SkillSight-Brief.pdf](exports/SkillSight-Brief.pdf).*
 
 ---
 
