@@ -230,9 +230,5 @@ const SKILLSIGHT_DATA = {
       { method: "Project Experience", detail: "Each supervisor runs one improvement project with a coach." },
       { method: "Training", detail: "Yellow Belt basics for every line lead, not just supervisors." }
     ],
-    "Packaging Equipment Maintenance": [
-      { method: "Training", detail: "Equipment maker runs a maintenance course on site." },
-      { method: "Mentoring", detail: "Senior mechanics take one trainee each per shift." }
-    ]
   }
 };
