@@ -24,6 +24,8 @@ Ajay Angdembe (solo)
 
 - Repo: https://github.com/Aj-Networks/schwan_s
 - Deck: `exports/SkillSight.pptx` (six slides for a three minute slot, speaker script and timings in the notes)
+- Stage script: `exports/SkillSight_Script.html` (slide images, what to say, rehearsal timer)
+- Written brief: `exports/Schwans_Project_Brief.docx` (APA 7, 3,500 words, 10 references, four appendices)
 - Live demo: *(add the GitHub Pages link once the repo is public, or leave this out and use the video)*
 - Video: *(add link)*
 
