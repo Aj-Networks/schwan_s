@@ -121,7 +121,7 @@ const TABS = [
 // which is what makes Previous, Next and "back to where I was" work.
 const LISTS = {
   priority: { label: "Do this first", tab: "overview", anchor: "sec-priority", items: () => PRIORITY.map(p => p.skill) },
-  gaps:     { label: "Biggest gaps today", tab: "overview", anchor: "sec-gaps", items: () => TOP_GAPS.map(g => g.skill) },
+  gaps:     { label: "Where coverage is lowest", tab: "overview", anchor: "sec-gaps", items: () => TOP_GAPS.map(g => g.skill) },
   skills:   { label: "Skills", tab: "skills", anchor: null, items: () => visibleSkills().map(s => s.skill) },
   risk:     { label: "Succession risk", tab: "risk", anchor: null, items: () => RISKS_SORTED.map(r => r.skill) },
   future:   { label: "Future skills", tab: "future", anchor: null, items: () => FUTURE_SORTED.map(f => f.skill) }
@@ -218,9 +218,11 @@ function pageOverview() {
     aboutBlock() +
     '<div class="stats">' + stats + '</div>' +
     '<div class="sec" id="sec-priority"><div class="sec-h"><b>Do this first</b>' +
-      '<span>ranked by impact, how few people hold it, and gap size</span></div>' + priority + '</div>' +
-    '<div class="sec" id="sec-gaps"><div class="sec-h"><b>Biggest gaps today</b>' +
-      '<span>5 worst of ' + GAPS.length + ' under 40 percent. <a data-goto="skills">See all</a></span></div>' +
+      '<span>ranked by impact, how few people hold it, and gap size' +
+      '<em class="q">Answers: where are our greatest capability gaps and succession risks</em></span></div>' + priority + '</div>' +
+    '<div class="sec" id="sec-gaps"><div class="sec-h"><b>Where coverage is lowest</b>' +
+      '<span>5 worst of ' + GAPS.length + ' under 40 percent. <a data-goto="skills">See all</a>' +
+      '<em class="q">Answers: what skills exist across our workforce today</em></span></div>' +
       table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Plan</th>', skillRows(TOP_GAPS, "gaps")) + '</div>';
 }
 
@@ -266,6 +268,7 @@ function pageRisk() {
 
   return '<h1 class="h1">Succession risk</h1>' +
     '<p class="sub">Skills that sit with a handful of people. If they leave, the work stops until someone else learns it.</p>' +
+    '<p class="q standalone">Answers: which critical skills are concentrated in only a few individuals</p>' +
     '<div class="sec flush">' + table('<th>Skill</th><th class="num">People</th><th class="num">Impact</th>', body) + '</div>';
 }
 
@@ -279,6 +282,7 @@ function pageFuture() {
 
   return '<h1 class="h1">Future skills</h1>' +
     '<p class="sub">What the next two years need, and how far short the workforce is today.</p>' +
+    '<p class="q standalone">Answers: what skills will be needed to support future business and technology strategies</p>' +
     '<div class="sec flush">' + table('<th>Skill</th><th>Today</th><th class="num">Needed</th><th class="num">Gap</th>', body) + '</div>';
 }
 
@@ -378,7 +382,8 @@ function pageSkill(name) {
     : "";
 
   const planSec = plan
-    ? '<div class="sec"><div class="sec-h"><b>How to close it</b><span>first step</span></div>' +
+    ? '<div class="sec"><div class="sec-h"><b>How to close it</b><span>first step' +
+        '<em class="q">Answers: how can employees close skill gaps through training, mentoring, certifications, job rotations, or project experiences</em></span></div>' +
       '<div class="plan"><span class="plan-m">' + esc(plan.method) + '</span><p class="prose">' + esc(plan.detail) + '</p></div>' +
       altSec +
       '<label class="check"><input type="checkbox" id="plan-box"' + (isPlanStarted(skill) ? " checked" : "") + '>' +

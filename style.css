@@ -198,6 +198,17 @@ html[data-theme="dark"] .ico-moon { display: none; }
 .sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
 .sec-h b { font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--faint); }
 .sec-h span { font-size: 12.5px; color: var(--muted); }
+/* the challenge's own wording, kept in the margin so the plain label leads */
+.q {
+  display: block;
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--faint);
+  margin-top: 3px;
+  max-width: 46ch;
+}
+.sec-h span { text-align: right; }
+.q.standalone { text-align: left; margin: 8px 0 0; max-width: 70ch; }
 .sec-h span a { color: var(--accent); cursor: pointer; }
 .sec-h span a:hover { text-decoration: underline; }
 
