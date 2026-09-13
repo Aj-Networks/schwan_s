@@ -1,345 +1,347 @@
-// Tab switching
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
-  });
-});
+/* SkillSight - workbench app logic.
+   Left column selects a view (overview, plant network, or one skill).
+   Right pane answers the five challenge questions for whatever is selected. */
 
-// Development-plan tracking (Q5) - persists per browser via localStorage, so
-// toggling "in progress" actually sticks across reloads instead of being decorative.
-function planKey(skill) {
-  return "skillsight_plan_" + skill;
+const D = SKILLSIGHT_DATA;
+
+/* ---------- shared helpers ---------- */
+
+// Five-step ramp instead of a rainbow, so two skills that are close in
+// coverage do not read as wildly different colors.
+const RAMP = ["#b03a2c", "#c86f3a", "#c9a53c", "#6f9e5a", "#3c8a6b"];
+
+function ramp(pct) {
+  if (pct < 25) return RAMP[0];
+  if (pct < 40) return RAMP[1];
+  if (pct < 60) return RAMP[2];
+  if (pct < 80) return RAMP[3];
+  return RAMP[4];
 }
 
-function isPlanStarted(skill) {
+function flatSkills() {
+  const out = [];
+  D.segments.forEach(seg => {
+    seg.skills.forEach(s => out.push({ segment: seg.name, skill: s.skill, coverage: s.coverage }));
+  });
+  return out;
+}
+
+const ALL = flatSkills().sort((a, b) => a.coverage - b.coverage);
+const GAPS = ALL.filter(s => s.coverage < 40);
+const AVG = Math.round(ALL.reduce((t, s) => t + s.coverage, 0) / ALL.length);
+const THIN = D.successionRisks.filter(r => r.headcount <= 3);
+
+function actionFor(skill) {
+  return D.recommendedActions[skill] || null;
+}
+
+// Risk entries are named slightly differently from the coverage list
+// ("R&D / Food Science - Frozen Dough" vs "R&D / Food Science"), so match on the base name.
+function riskFor(skill) {
+  const base = skill.split(" - ")[0];
+  return D.successionRisks.find(r => r.skill === skill)
+      || D.successionRisks.find(r => r.skill.split(" - ")[0] === base);
+}
+
+function futureFor(skill) {
+  return D.futureSkills.find(f => f.skill === skill);
+}
+
+function level(pct) {
+  if (pct < 40) return { cls: "hi", text: "Critical gap" };
+  if (pct < 60) return { cls: "md", text: "Needs attention" };
+  return { cls: "ok", text: "Well covered" };
+}
+
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+}
+
+/* ---------- theme toggle ---------- */
+
+const THEME_KEY = "skillsight_theme";
+
+function readTheme() {
   try {
-    return localStorage.getItem(planKey(skill)) === "1";
-  } catch (e) {
-    return false;
-  }
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "light" || saved === "dark") return saved;
+  } catch (e) { /* storage blocked, fall through to system preference */ }
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* not fatal */ }
+}
+
+applyTheme(readTheme());
+
+document.getElementById("theme-toggle").addEventListener("click", () => {
+  applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+});
+
+/* ---------- development plan tracking (Q5) ---------- */
+// Checking "development plan started" survives a reload, so the demo shows
+// real state instead of a decorative checkbox.
+
+function planKey(skill) { return "skillsight_plan_" + skill; }
+
+function isPlanStarted(skill) {
+  try { return localStorage.getItem(planKey(skill)) === "1"; } catch (e) { return false; }
 }
 
 function setPlanStarted(skill, started) {
-  try {
-    localStorage.setItem(planKey(skill), started ? "1" : "0");
-  } catch (e) {
-    // storage unavailable (private browsing, etc) - fail silently, checkbox still reflects clicks this session
-  }
+  try { localStorage.setItem(planKey(skill), started ? "1" : "0"); } catch (e) { /* not fatal */ }
 }
 
-function actionBlockHTML(skill) {
-  const action = SKILLSIGHT_DATA.recommendedActions[skill];
-  if (!action) return "";
-  const checked = isPlanStarted(skill) ? "checked" : "";
-  return `
-    <div class="action-block">
-      <div class="action-method">${action.method}</div>
-      <div class="action-detail">${action.detail}</div>
-      <label class="action-toggle">
-        <input type="checkbox" class="plan-checkbox" data-skill="${skill}" ${checked}>
-        Development plan started
-      </label>
-    </div>
-  `;
+function plansStarted() {
+  return ALL.filter(s => isPlanStarted(s.skill)).length
+       + D.successionRisks.filter(r => !ALL.some(s => s.skill === r.skill) && isPlanStarted(r.skill)).length;
 }
 
-function wireActionToggles(container) {
-  container.querySelectorAll(".plan-checkbox").forEach(box => {
-    box.addEventListener("change", () => {
-      setPlanStarted(box.dataset.skill, box.checked);
-    });
-  });
-}
+/* ---------- state ---------- */
 
-function coverageColor(pct) {
-  // low coverage = red (gap), high coverage = green
-  const hue = Math.round((pct / 100) * 120); // 0 = red, 120 = green
-  return `hsl(${hue}, 65%, 45%)`;
-}
-
-Chart.defaults.font.family = "Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-Chart.defaults.color = getComputedStyle(document.body).getPropertyValue("--fg") || "#1a1a1a";
-Chart.defaults.animation = { duration: 900, easing: "easeOutQuart" };
-
-const charts = {};
-
-function barChart(canvasId, labels, datasets, xMax) {
-  const ctx = document.getElementById(canvasId);
-  if (charts[canvasId]) charts[canvasId].destroy();
-  charts[canvasId] = new Chart(ctx, {
-    type: "bar",
-    data: { labels, datasets },
-    options: {
-      indexAxis: "y",
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: datasets.length > 1 } },
-      scales: {
-        x: { beginAtZero: true, max: xMax, grid: { color: "rgba(128,128,128,0.15)" } },
-        y: { grid: { display: false } }
-      }
-    }
-  });
-}
-
-function allSkillsFlat() {
-  const rows = [];
-  SKILLSIGHT_DATA.segments.forEach(segment => {
-    segment.skills.forEach(s => {
-      rows.push({ segment: segment.name, skill: s.skill, coverage: s.coverage });
-    });
-  });
-  return rows;
-}
-
-function computeGaps() {
-  return allSkillsFlat()
-    .filter(s => s.coverage < 40)
-    .sort((a, b) => a.coverage - b.coverage);
-}
-
-function renderHeatGrid(containerId, filterSegment) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-  const rows = allSkillsFlat().filter(r => filterSegment === "all" || r.segment === filterSegment);
-
-  rows.forEach((r, i) => {
-    const tile = document.createElement("div");
-    tile.className = "heat-tile";
-    tile.style.background = coverageColor(r.coverage);
-    tile.style.animationDelay = (i * 0.025) + "s";
-    tile.innerHTML = `
-      <div class="heat-tile-pct">${r.coverage}%</div>
-      <div class="heat-tile-skill">${r.skill}</div>
-      <div class="heat-tile-segment">${r.segment}</div>
-    `;
-    container.appendChild(tile);
-  });
-}
-
-// Quadrant shading for the succession risk matrix - the four background zones
-// a security risk register would use, drawn behind the scatter points.
-const riskQuadrantPlugin = {
-  id: "riskQuadrant",
-  beforeDraw(chart) {
-    const { ctx, chartArea, scales } = chart;
-    if (!chartArea) return;
-    const midX = scales.x.getPixelForValue((scales.x.min + scales.x.max) / 2);
-    const midY = scales.y.getPixelForValue((scales.y.min + scales.y.max) / 2);
-    ctx.save();
-    ctx.fillStyle = "rgba(200,60,60,0.10)"; // top-right: high impact, high concentration -> act first
-    ctx.fillRect(midX, chartArea.top, chartArea.right - midX, midY - chartArea.top);
-    ctx.fillStyle = "rgba(220,170,60,0.08)"; // top-left / bottom-right: watch
-    ctx.fillRect(chartArea.left, chartArea.top, midX - chartArea.left, midY - chartArea.top);
-    ctx.fillRect(midX, midY, chartArea.right - midX, chartArea.bottom - midY);
-    ctx.fillStyle = "rgba(60,160,90,0.08)"; // bottom-left: lower priority
-    ctx.fillRect(chartArea.left, midY, midX - chartArea.left, chartArea.bottom - midY);
-
-    ctx.font = "bold 11px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(120,30,30,0.65)";
-    ctx.textAlign = "right";
-    ctx.fillText("ACT FIRST", chartArea.right - 6, chartArea.top + 14);
-    ctx.fillStyle = "rgba(130,100,20,0.6)";
-    ctx.textAlign = "left";
-    ctx.fillText("WATCH", chartArea.left + 6, chartArea.top + 14);
-    ctx.textAlign = "right";
-    ctx.fillText("WATCH", chartArea.right - 6, chartArea.bottom - 6);
-    ctx.fillStyle = "rgba(30,110,60,0.6)";
-    ctx.textAlign = "left";
-    ctx.fillText("LOWER PRIORITY", chartArea.left + 6, chartArea.bottom - 6);
-    ctx.restore();
-  }
+const state = {
+  view: "overview",   // "overview" | "plants" | a skill name
+  segment: "All",
+  query: ""
 };
 
-function riskMatrixColor(concentrationScore, impact) {
-  // combined risk: 0 (safe, bottom-left) to 1 (act first, top-right) -> green to red
-  const combined = (concentrationScore / 10) * (impact / 5);
-  const hue = Math.round((1 - combined) * 120);
-  return `hsl(${hue}, 70%, 45%)`;
+function select(view) {
+  state.view = view;
+  renderList();
+  renderDetail();
+  document.querySelector(".detail").scrollTop = 0;
 }
 
-function renderRiskMatrix(canvasId) {
-  const risks = SKILLSIGHT_DATA.successionRisks;
-  const points = risks.map(r => ({
-    x: Math.round((10 / r.headcount) * 10) / 10, // concentration score: fewer holders -> higher score
-    y: r.impact,
-    skill: r.skill
-  }));
+/* ---------- left column ---------- */
 
-  if (charts[canvasId]) charts[canvasId].destroy();
-  charts[canvasId] = new Chart(document.getElementById(canvasId), {
-    type: "scatter",
-    data: {
-      datasets: [{
-        data: points,
-        backgroundColor: points.map(p => riskMatrixColor(p.x, p.y)),
-        pointRadius: 9,
-        pointHoverRadius: 11
-      }]
-    },
-    plugins: [riskQuadrantPlugin],
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.raw.skill} - concentration ${ctx.raw.x}, impact ${ctx.raw.y}`
-          }
-        }
-      },
-      scales: {
-        x: { min: 0, max: 11, title: { display: true, text: "Concentration risk (fewer holders →)" } },
-        y: { min: 0, max: 6, title: { display: true, text: "Business impact" } }
-      }
-    }
+function visibleRows() {
+  const q = state.query.trim().toLowerCase();
+  return ALL.filter(r => {
+    const segOK = state.segment === "All" || r.segment === state.segment;
+    const qOK = !q || r.skill.toLowerCase().includes(q) || r.segment.toLowerCase().includes(q);
+    return segOK && qOK;
   });
 }
 
-function renderGaps() {
-  const gaps = computeGaps();
-
-  barChart(
-    "gaps-chart",
-    gaps.map(g => g.skill),
-    [{ data: gaps.map(g => g.coverage), backgroundColor: gaps.map(g => coverageColor(g.coverage)) }],
-    100
-  );
-
-  const container = document.getElementById("gaps-container");
-  gaps.forEach(g => {
-    const item = document.createElement("div");
-    item.className = "detail-item";
-    item.innerHTML = `
-      <h3>${g.skill}</h3>
-      <div class="meta">${g.segment} • ${g.coverage}% coverage</div>
-      ${actionBlockHTML(g.skill)}
-    `;
-    container.appendChild(item);
-  });
-
-  wireActionToggles(container);
+function renderPinned() {
+  const items = [
+    { id: "overview", icon: "▣", label: "Workforce overview", note: ALL.length + " skills" },
+    { id: "plants", icon: "◇", label: "Plants and offices", note: String(D.plants.length) }
+  ];
+  document.getElementById("pinned").innerHTML = items.map(i =>
+    '<div class="pin' + (state.view === i.id ? " on" : "") + '" data-view="' + i.id + '">' +
+      '<i>' + i.icon + '</i>' + i.label + '<span>' + i.note + '</span></div>'
+  ).join("");
 }
 
-function renderRisks() {
-  const risks = SKILLSIGHT_DATA.successionRisks;
-  const container = document.getElementById("risk-container");
-  risks.forEach(r => {
-    const item = document.createElement("div");
-    item.className = "detail-item";
-    item.innerHTML = `
-      <h3>${r.skill}</h3>
-      <div class="meta">${r.segment} • ${r.location} • ${r.headcount} people hold this skill</div>
-      <div>${r.note}</div>
-      ${actionBlockHTML(r.skill)}
-    `;
-    container.appendChild(item);
-  });
-
-  wireActionToggles(container);
+function renderChips() {
+  const segs = ["All"].concat(D.segments.map(s => s.name));
+  document.getElementById("chips").innerHTML = segs.map(s =>
+    '<div class="chip' + (state.segment === s ? " on" : "") + '" data-seg="' + esc(s) + '">' +
+      esc(s === "All" ? "All groups" : s.replace(" & ", " and ")) + '</div>'
+  ).join("");
 }
 
-function renderFuture() {
-  const list = [...SKILLSIGHT_DATA.futureSkills].sort(
-    (a, b) => (b.targetCoverage - b.currentCoverage) - (a.targetCoverage - a.currentCoverage)
-  );
+function renderList() {
+  renderPinned();
+  renderChips();
 
-  barChart(
-    "future-chart",
-    list.map(f => f.skill),
-    [
-      { label: "Current", data: list.map(f => f.currentCoverage), backgroundColor: "rgba(122,31,43,0.35)" },
-      { label: "Needed", data: list.map(f => f.targetCoverage), backgroundColor: "rgba(122,31,43,0.9)" }
-    ],
-    100
-  );
+  const rows = visibleRows();
+  document.getElementById("skill-count").textContent = "(" + rows.length + ")";
 
-  const container = document.getElementById("future-container");
-  list.forEach(f => {
-    const shortfall = f.targetCoverage - f.currentCoverage;
-    const item = document.createElement("div");
-    item.className = "detail-item";
-    item.innerHTML = `
-      <h3>${f.skill}</h3>
-      <div class="meta">${f.segment} • ${f.currentCoverage}% today, needs ${f.targetCoverage}% (${shortfall} pt gap)</div>
-      <div>${f.driver}</div>
-      ${actionBlockHTML(f.skill)}
-    `;
-    container.appendChild(item);
-  });
-
-  wireActionToggles(container);
+  document.getElementById("rows").innerHTML = rows.length
+    ? rows.map(r =>
+        '<div class="row' + (state.view === r.skill ? " on" : "") + '" data-skill="' + esc(r.skill) + '">' +
+          '<div><div class="row-n">' + esc(r.skill) + '</div><div class="row-s">' + esc(r.segment) + '</div></div>' +
+          '<div class="mini"><i style="width:' + r.coverage + '%;background:' + ramp(r.coverage) + '"></i></div>' +
+          '<div class="pct">' + r.coverage + '</div>' +
+        '</div>').join("")
+    : '<div class="empty-rows">No skill matches that search.</div>';
 }
 
-function renderPlants() {
-  const container = document.getElementById("plants-container");
-  const list = document.createElement("div");
-  list.className = "plant-list";
-  SKILLSIGHT_DATA.plants.forEach(p => {
-    const row = document.createElement("div");
-    row.className = "plant-row";
-    row.textContent = p;
-    list.appendChild(row);
-  });
-  container.appendChild(list);
+/* ---------- detail pane: overview ---------- */
+
+function barRow(name, sub, pct, target) {
+  const back = target ? '<i class="target" style="width:' + target + '%"></i>' : "";
+  return '<div class="bar" data-skill="' + esc(name) + '">' +
+    '<div class="n">' + esc(name) + (sub ? '<small>' + esc(sub) + '</small>' : "") + '</div>' +
+    '<div class="t">' + back + '<i style="width:' + pct + '%;background:' + ramp(pct) + '"></i></div>' +
+    '<div class="p">' + pct + '%</div></div>';
 }
 
-function countUp(el, target, suffix) {
-  const duration = 700;
-  const start = performance.now();
-  function tick(now) {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-    el.textContent = Math.round(target * eased) + suffix;
-    if (progress < 1) requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-}
+function renderOverview() {
+  const started = plansStarted();
 
-function renderStatGrid() {
-  const container = document.getElementById("stat-grid");
-  const rows = allSkillsFlat();
-  const avgCoverage = Math.round(rows.reduce((sum, r) => sum + r.coverage, 0) / rows.length);
-  const stats = [
-    { value: avgCoverage, suffix: "%", label: "Avg Coverage" },
-    { value: computeGaps().length, suffix: "", label: "Capability Gaps" },
-    { value: SKILLSIGHT_DATA.successionRisks.length, suffix: "", label: "Succession Risks" },
-    { value: SKILLSIGHT_DATA.futureSkills.length, suffix: "", label: "Future Needs" },
-    { value: SKILLSIGHT_DATA.plants.length, suffix: "", label: "Locations" }
+  const cards = [
+    { l: "Average coverage", v: AVG + "%", s: "across " + ALL.length + " tracked skills", c: "" },
+    { l: "Skills under 40%", v: GAPS.length, s: "most of the group cannot do this work", c: "warn" },
+    { l: "Held by 3 or fewer", v: THIN.length, s: "one person leaving stops the work", c: "bad" },
+    { l: "Plans started", v: started, s: "saved in this browser", c: "" }
   ];
 
-  stats.forEach((s, i) => {
-    const item = document.createElement("div");
-    item.className = "stat-item";
-    item.style.animationDelay = (i * 0.06) + "s";
-    item.innerHTML = `<div class="stat-value">0${s.suffix}</div><div class="stat-label">${s.label}</div>`;
-    container.appendChild(item);
-    setTimeout(() => countUp(item.querySelector(".stat-value"), s.value, s.suffix), i * 60);
-  });
+  const gapsHTML = GAPS.map(g => barRow(g.skill, g.segment, g.coverage)).join("");
+
+  const riskHTML = D.successionRisks
+    .slice()
+    .sort((a, b) => (b.impact / b.headcount) - (a.impact / a.headcount))
+    .map(r =>
+      '<div class="risk-row" data-skill="' + esc(r.skill) + '">' +
+        '<div><div class="risk-n">' + esc(r.skill) + '</div><div class="risk-m">' + esc(r.location) + '</div></div>' +
+        '<div class="tag ' + (r.impact >= 5 || r.headcount <= 2 ? "hi" : "md") + '">' + r.headcount + ' people</div>' +
+      '</div>').join("");
+
+  const futureHTML = D.futureSkills
+    .slice()
+    .sort((a, b) => (b.targetCoverage - b.currentCoverage) - (a.targetCoverage - a.currentCoverage))
+    .map(f =>
+      barRow(f.skill, "needs " + f.targetCoverage + "%, " + (f.targetCoverage - f.currentCoverage) + " points to close", f.currentCoverage, f.targetCoverage) +
+      '<div class="driver">' + esc(f.driver) + '</div>').join("");
+
+  return '<div class="detail-inner">' +
+    '<div class="d-top"><div><h1>Workforce overview</h1>' +
+      '<p>16 plants and 3 offices. Four job groups. ' + ALL.length + ' skills tracked.</p></div></div>' +
+
+    '<div class="cards">' + cards.map(c =>
+      '<div class="card"><div class="l">' + c.l + '</div><div class="v ' + c.c + '">' + c.v + '</div><div class="s">' + c.s + '</div></div>'
+    ).join("") + '</div>' +
+
+    '<div class="panel"><div class="panel-h"><b>Biggest gaps today</b><span>Skills under 40 percent coverage</span></div>' +
+      '<div class="panel-b">' + gapsHTML + '</div></div>' +
+
+    '<div class="panel"><div class="panel-h"><b>Skills only a few people know</b><span>Click one to see the plan</span></div>' +
+      '<div class="panel-b">' + riskHTML + '</div></div>' +
+
+    '<div class="panel"><div class="panel-h"><b>What the next two years need</b><span>Now vs needed</span></div>' +
+      '<div class="panel-b">' + futureHTML + '</div></div>' +
+  '</div>';
 }
 
-function populateSegmentFilter() {
-  const select = document.getElementById("segment-filter");
-  SKILLSIGHT_DATA.segments.forEach(segment => {
-    const opt = document.createElement("option");
-    opt.value = segment.name;
-    opt.textContent = segment.name;
-    select.appendChild(opt);
-  });
+/* ---------- detail pane: plant network ---------- */
 
-  select.addEventListener("change", () => renderHeatGrid("heatmap-grid", select.value));
+function renderPlants() {
+  const cells = D.plants.map(p => {
+    const open = p.indexOf("(");
+    const name = open > -1 ? p.slice(0, open).trim() : p;
+    const kind = open > -1 ? p.slice(open + 1).replace(")", "") : "";
+    return '<div class="plant">' + esc(name) + '<span>' + esc(kind) + '</span></div>';
+  }).join("");
+
+  return '<div class="detail-inner">' +
+    '<div class="d-top"><div><h1>Plants and offices</h1>' +
+      '<p>Every site the skills data covers. Sioux Falls is still being built.</p></div></div>' +
+    '<div class="cards">' +
+      '<div class="card"><div class="l">Production sites</div><div class="v">16</div><div class="s">pizza, desserts, packaging</div></div>' +
+      '<div class="card"><div class="l">Corporate offices</div><div class="v">3</div><div class="s">Marshall, Hopkins, La Palma</div></div>' +
+      '<div class="card"><div class="l">Job groups</div><div class="v">' + D.segments.length + '</div><div class="s">each needs its own skill list</div></div>' +
+    '</div>' +
+    '<div class="panel"><div class="panel-h"><b>Network</b><span>' + D.plants.length + ' locations</span></div>' +
+      '<div class="panel-b"><div class="plantgrid">' + cells + '</div></div></div>' +
+  '</div>';
 }
 
-renderStatGrid();
-renderHeatGrid("heatmap-grid", "all");
-renderHeatGrid("heatmap-grid-preview", "all");
-renderGaps();
-renderRisks();
-renderRiskMatrix("risk-matrix-chart");
-renderFuture();
-renderPlants();
-populateSegmentFilter();
+/* ---------- detail pane: one skill ---------- */
+
+function renderSkill(name) {
+  const row = ALL.find(r => r.skill === name);
+  const risk = riskFor(name);
+
+  // A risk entry can name a skill that is not in the coverage list on its own
+  // (for example the Salina line configuration). Fall back to the risk record.
+  const skill = row ? row.skill : (risk ? risk.skill : name);
+  const segment = row ? row.segment : (risk ? risk.segment : "");
+  const coverage = row ? row.coverage : null;
+  const future = futureFor(skill);
+  const plan = actionFor(skill);
+  const lv = coverage === null ? { cls: "hi", text: "Tracked as a risk" } : level(coverage);
+  const holders = risk ? risk.headcount : Math.max(4, Math.round((coverage || 0) / 8));
+
+  const cards =
+    '<div class="cards">' +
+      '<div class="card"><div class="l">Coverage</div><div class="v">' + (coverage === null ? "-" : coverage + "%") + '</div>' +
+        '<div class="s">' + (coverage === null ? "not scored across the group" : "of people in this job group") + '</div></div>' +
+      '<div class="card"><div class="l">People who hold it</div><div class="v ' + (holders <= 3 ? "bad" : "") + '">' + holders + '</div>' +
+        '<div class="s">' + (risk ? "named in the risk list" : "estimated from coverage") + '</div></div>' +
+      '<div class="card"><div class="l">Needed by 2027</div><div class="v">' + (future ? future.targetCoverage + "%" : "-") + '</div>' +
+        '<div class="s">' + (future ? (future.targetCoverage - future.currentCoverage) + " points to close" : "no target set") + '</div></div>' +
+    '</div>';
+
+  const riskPanel = risk
+    ? '<div class="panel"><div class="panel-h"><b>Why this is a risk</b><span>' + esc(risk.location) + '</span></div>' +
+        '<div class="panel-b"><div class="prose">' + esc(risk.note) + '</div></div></div>'
+    : "";
+
+  const futurePanel = future
+    ? '<div class="panel"><div class="panel-h"><b>Why it will be needed</b><span>' +
+        future.currentCoverage + '% now, ' + future.targetCoverage + '% needed</span></div>' +
+        '<div class="panel-b"><div class="prose">' + esc(future.driver) + '</div></div></div>'
+    : "";
+
+  const planPanel = '<div class="panel"><div class="panel-h"><b>How to close it</b><span>First step</span></div>' +
+    '<div class="panel-b">' +
+      (plan
+        ? '<div class="plan"><div class="plan-m">' + esc(plan.method) + '</div><div class="plan-d">' + esc(plan.detail) + '</div></div>' +
+          '<label class="check"><input type="checkbox" id="plan-box"' + (isPlanStarted(skill) ? " checked" : "") + '> Development plan started</label>'
+        : '<div class="prose">No plan set for this skill yet.</div>') +
+    '</div></div>';
+
+  const peoplePanel = '<div class="panel"><div class="panel-h"><b>Who holds it today</b><span>names hidden in the demo</span></div>' +
+    '<div class="panel-b"><div class="people">' +
+      Array.from({ length: Math.min(holders, 8) }, (_, i) =>
+        '<div class="person"><i>' + String.fromCharCode(65 + (i * 7) % 26) + String.fromCharCode(66 + (i * 3) % 26) + '</i>Employee ' + (1001 + i * 37) + '</div>'
+      ).join("") +
+      (holders > 8 ? '<div class="person"><i>+</i>' + (holders - 8) + ' more</div>' : "") +
+    '</div></div></div>';
+
+  return '<div class="detail-inner">' +
+    '<div class="d-top"><div><h1>' + esc(skill) + '</h1><p>' + esc(segment) + '</p></div>' +
+      '<div class="badge ' + lv.cls + '">' + lv.text + '</div></div>' +
+    cards + riskPanel + futurePanel + planPanel + peoplePanel +
+  '</div>';
+}
+
+/* ---------- render + events ---------- */
+
+function renderDetail() {
+  const pane = document.getElementById("detail");
+  if (state.view === "overview") pane.innerHTML = renderOverview();
+  else if (state.view === "plants") pane.innerHTML = renderPlants();
+  else pane.innerHTML = renderSkill(state.view);
+
+  const box = document.getElementById("plan-box");
+  if (box) {
+    box.addEventListener("change", () => {
+      setPlanStarted(state.view, box.checked);
+    });
+  }
+}
+
+document.querySelector(".listcol").addEventListener("click", e => {
+  const pin = e.target.closest(".pin");
+  if (pin) return select(pin.dataset.view);
+
+  const chip = e.target.closest(".chip");
+  if (chip) {
+    state.segment = chip.dataset.seg;
+    renderList();
+    return;
+  }
+
+  const row = e.target.closest(".row");
+  if (row) select(row.dataset.skill);
+});
+
+// Bars and risk rows on the overview jump straight to that skill.
+document.getElementById("detail").addEventListener("click", e => {
+  const hit = e.target.closest("[data-skill]");
+  if (hit) select(hit.dataset.skill);
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  state.query = e.target.value;
+  renderList();
+});
+
+renderList();
+renderDetail();
