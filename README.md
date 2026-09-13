@@ -52,7 +52,11 @@ index.html    page shell: top bar, tabs, content area
 style.css     all styling and both themes
 script.js     app logic and page rendering
 data.js       the data the app reads
-PROJECT.md    challenge notes and research
+verify.js     self-check, run with node
+FACTS.md      every outside claim, its source, and what was cut
+exports/      the deck and the written brief
+tools/        generators for the deck and the brief, plus a layout checker
+screenshots/  the pages, captured from the app
 ```
 
 ## About the data
@@ -73,7 +77,9 @@ One skill, the Salina line setup, honestly says "None. This skill has no system 
 
 ## Built with
 
-Plain HTML, CSS, and JavaScript. No frameworks, no build tools, no dependencies.
+Plain HTML, CSS, and JavaScript. The app itself has no frameworks, no build tools, and no dependencies: open `index.html` and it runs.
+
+The generators in `tools/` are separate from the app. They build the deck and the written brief, and they do need Node packages (`pptxgenjs`, `docx`). Nothing in the app depends on them.
 
 ## Team
 
