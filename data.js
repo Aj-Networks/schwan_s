@@ -1,8 +1,22 @@
 // Seed/demo data for SkillSight. Fake employee-level numbers; real Schwan's plant/segment names.
 const SKILLSIGHT_DATA = {
+  // Said on screen so nobody mistakes the demo for a real report.
+  demoNotes: {
+    headline: "Demo numbers, real places. Assumes a workforce of about 7,000 people across four job groups.",
+    points: [
+      "Where this started: the five questions in the challenge. Each one became a page.",
+      "Assumed workforce: 4,200 in Manufacturing and Logistics, 1,300 in Retail Sales and Distribution, 450 in Foodservice Sales, 1,050 in Corporate.",
+      "Coverage is the share of a job group that has a skill. The people counts in the risk list are for one site, not the whole group, which is why a skill can read 22 percent and still come down to two certified techs at Marshall.",
+      "Real: plant and office locations, job groups, and the business reasons (the Sioux Falls build-out, the CJ CheilJedang integration, the Marshall R&D center).",
+      "Made up: every coverage percentage, headcount, and employee name.",
+      "Limits: no real HR data, no individual records, no login, and no employee view yet. Scores rank the work, they do not predict who will leave."
+    ]
+  },
+
   segments: [
     {
       name: "Manufacturing & Logistics",
+      size: 4200,
       skills: [
         { skill: "Line Operations", coverage: 82 },
         { skill: "PLC / Automation Programming", coverage: 34 },
@@ -15,6 +29,7 @@ const SKILLSIGHT_DATA = {
     },
     {
       name: "Retail Sales & Distribution",
+      size: 1300,
       skills: [
         { skill: "Route Sales", coverage: 88 },
         { skill: "DSD Logistics", coverage: 65 },
@@ -24,6 +39,7 @@ const SKILLSIGHT_DATA = {
     },
     {
       name: "Foodservice Sales",
+      size: 450,
       skills: [
         { skill: "Foodservice Account Management", coverage: 70 },
         { skill: "Menu / Culinary Consulting", coverage: 29 },
@@ -32,6 +48,7 @@ const SKILLSIGHT_DATA = {
     },
     {
       name: "Corporate",
+      size: 1050,
       skills: [
         { skill: "R&D / Food Science", coverage: 18 },
         { skill: "Data Analytics", coverage: 41 },
