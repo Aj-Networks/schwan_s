@@ -152,8 +152,8 @@ function plansStarted() {
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "skills", label: "Skills", count: ALL.length },
-  { id: "risk", label: "Succession risk", count: D.successionRisks.length },
   { id: "future", label: "Future skills", count: D.futureSkills.length },
+  { id: "risk", label: "Succession risk", count: D.successionRisks.length },
   { id: "people", label: "Employee view", count: D.employees.length },
   { id: "plants", label: "Plants and offices", count: D.plants.length }
 ];
@@ -280,10 +280,10 @@ function pageOverview() {
     '<div class="stats">' + stats + '</div>' +
     '<div class="sec" id="sec-priority"><div class="sec-h"><b>Do this first</b>' +
       '<span>ranked by impact, how few people hold it, and gap size' +
-      '<em class="q">Answers: where are our greatest capability gaps and succession risks</em></span></div>' + priority + '</div>' +
+      '<em class="q">Question 4: where are our greatest capability gaps and succession risks</em></span></div>' + priority + '</div>' +
     '<div class="sec" id="sec-gaps"><div class="sec-h"><b>Where coverage is lowest</b>' +
       '<span>5 worst of ' + GAPS.length + ' under 40 percent. <a data-goto="skills">See all</a>' +
-      '<em class="q">Answers: what skills exist across our workforce today</em></span></div>' +
+      '<em class="q">Question 1: what skills exist across our workforce today</em></span></div>' +
       table('<th>Skill</th><th>Job group</th><th>Coverage</th><th class="num">Plan</th>', skillRows(TOP_GAPS, "gaps")) + '</div>';
 }
 
@@ -312,6 +312,7 @@ function pageSkills() {
 
   return '<h1 class="h1">Skills</h1>' +
     '<p class="sub">All ' + ALL.length + ' tracked skills, grouped by how well they are covered.</p>' +
+    '<p class="q standalone">Question 1: what skills and competencies exist across our workforce today</p>' +
     '<div class="sec flush">' + bands.map(b =>
       '<details class="group"' + (b.open ? " open" : "") + '>' +
         '<summary><span class="pill ' + b.cls + '">' + b.label + '</span>' +
@@ -330,7 +331,7 @@ function pageRisk() {
 
   return '<h1 class="h1">Succession risk</h1>' +
     '<p class="sub">Skills that sit with a handful of people. If they leave, the work stops until someone else learns it.</p>' +
-    '<p class="q standalone">Answers: which critical skills are concentrated in only a few individuals</p>' +
+    '<p class="q standalone">Question 3: which critical skills are concentrated in only a few individuals</p>' +
     '<div class="sec flush">' + table('<th>Skill</th><th class="num">People</th><th class="num">Impact</th>', body) + '</div>';
 }
 
@@ -345,7 +346,7 @@ function pageFuture() {
 
   return '<h1 class="h1">Future skills</h1>' +
     '<p class="sub">What the next two years need, and how far short the workforce is today.</p>' +
-    '<p class="q standalone">Answers: what skills will be needed to support future business and technology strategies</p>' +
+    '<p class="q standalone">Question 2: what skills will be needed to support future business and technology strategies</p>' +
     '<div class="sec flush">' + table('<th>Skill</th><th>Today</th><th class="num">Needed</th><th class="num">Gap</th>', body) + '</div>';
 }
 
@@ -397,7 +398,7 @@ function pagePeople() {
 
   return '<h1 class="h1">Employee view</h1>' +
     '<p class="sub">The same data seen by the person, not the manager. Sample profiles.</p>' +
-    '<p class="q standalone">Answers: how can employees close skill gaps through training, mentoring, certifications, job rotations, or project experiences</p>' +
+    '<p class="q standalone">Question 5: how can employees close skill gaps through training, mentoring, certifications, job rotations, or project experiences</p>' +
     picker +
     '<div class="skill-head" style="margin-top:22px"><div>' +
       '<h2 class="h1">' + esc(person.name) + '</h2>' +
@@ -551,7 +552,7 @@ function pageSkill(name) {
 
   const planSec = plan
     ? '<div class="sec"><div class="sec-h"><b>How to close it</b><span>first step' +
-        '<em class="q">Answers: how employees close skill gaps</em></span></div>' +
+        '<em class="q">Question 5: how employees close skill gaps</em></span></div>' +
       '<div class="plan"><span class="plan-m">' + esc(plan.method) + '</span><p class="prose">' + esc(plan.detail) + '</p></div>' +
       altSec +
       '<label class="check' + (isPlanStarted(skill) ? " done" : "") + '">' +
