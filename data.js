@@ -191,7 +191,6 @@ const SKILLSIGHT_DATA = {
     "Legal / Compliance": { method: "Training", detail: "Cross-border labeling compliance workshop for corporate legal staff, ahead of expanded CJ integration." },
     "Menu / Culinary Consulting": { method: "Project Experience", detail: "Rotate junior account staff through shadow assignments on K-12 and healthcare accounts nationwide." },
     "Pizza Line Configuration": { method: "Mentoring", detail: "Write down how the lines are set up, and pair each senior operator with a backup before anyone transfers or retires." },
-    "Packaging Equipment Maintenance": { method: "Training", detail: "Bring the equipment maker on site for a maintenance course, so cover does not depend on the two mechanics who learned it by hand." },
     "Data Analytics": { method: "Training", detail: "Enroll corporate staff in an applied analytics bootcamp tied to the AI demand-forecasting rollout." },
     "Lean / Six Sigma": { method: "Certification", detail: "Fund Green Belt certification for plant supervisors to spread process-improvement skill beyond a small group." }
   },
