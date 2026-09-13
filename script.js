@@ -525,9 +525,14 @@ function pageSkill(name) {
         '<em class="q">Answers: how employees close skill gaps</em></span></div>' +
       '<div class="plan"><span class="plan-m">' + esc(plan.method) + '</span><p class="prose">' + esc(plan.detail) + '</p></div>' +
       altSec +
-      '<label class="check"><input type="checkbox" id="plan-box"' + (isPlanStarted(skill) ? " checked" : "") + '>' +
+      '<label class="check' + (isPlanStarted(skill) ? " done" : "") + '">' +
+        '<input type="checkbox" id="plan-box"' + (isPlanStarted(skill) ? " checked" : "") + '>' +
         ' Development plan started</label></div>'
-    : "";
+    // No plan is a decision, not an oversight, so the page says which decision.
+    : '<div class="sec"><div class="sec-h"><b>No plan set</b><span>and none needed yet</span></div>' +
+      '<p class="prose">Plans are written where there is something to act on: coverage under 40 percent, a skill held by three people or fewer, or a 2027 target. ' +
+      esc(skill) + ' is none of those' + (coverage !== null ? ', at ' + coverage + ' percent coverage' : "") +
+      '. It is watched, not worked on.</p></div>';
 
   const src = provenanceFor(skill, segment);
   const srcSec = src
