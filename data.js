@@ -2,21 +2,33 @@
 const SKILLSIGHT_DATA = {
   // Said on screen so nobody mistakes the demo for a real report.
   demoNotes: {
-    headline: "Demo numbers, real places. Assumes a workforce of about 7,000 people across four job groups.",
+    headline: "Demo numbers, real places. Sized against Schwan's published headcount of about 8,500 people.",
     points: [
       "Where this started: the five questions in the challenge. Each one became a page.",
-      "Assumed workforce: 4,200 in Manufacturing and Logistics, 1,300 in Retail Sales and Distribution, 450 in Foodservice Sales, 1,050 in Corporate.",
+      "Assumed workforce: 5,200 in Manufacturing and Logistics, 1,500 in Retail Sales and Distribution, 550 in Foodservice Sales, 1,250 in Corporate. That totals 8,500, the headcount Schwan's publishes.",
       "Coverage is the share of a job group that has a skill. The people counts in the risk list are for one site, not the whole group, which is why a skill can read 22 percent and still come down to two certified techs at Marshall.",
-      "Real: plant and office locations, job groups, and the business reasons (the Sioux Falls build-out, the CJ CheilJedang integration, the Marshall R&D center).",
-      "Made up: every coverage percentage, headcount, and employee name.",
-      "Limits: no real HR data, no individual records, no login, and no employee view yet. Scores rank the work, they do not predict who will leave."
+      "Real: plant and office locations, job groups, headcount, and the business reasons (the Sioux Falls build-out, the CJ CheilJedang integration, the Marshall R&D center).",
+      "Made up: every coverage percentage, the per-site headcounts, and all employee records. They are shaped by published industry figures, listed below, not invented from nothing.",
+      "Limits: no real HR data, no login, and no live system to read from. The scores rank the work, they do not predict who will leave."
+    ],
+    // Published figures the demo numbers are shaped around, so the assumptions
+    // can be checked instead of taken on trust.
+    sources: [
+      { fact: "Schwan's employs about 8,500 people, headquartered in Marshall, MN, 80 percent owned by CJ CheilJedang.",
+        source: "Schwan's Company, Wikipedia", url: "https://en.wikipedia.org/wiki/Schwan%27s_Company" },
+      { fact: "The US manufacturing skills gap could leave 2.1 million jobs unfilled by 2030, costing $1 trillion in that year alone. Baby boomer retirement is named by 34 percent of manufacturers as a top cause.",
+        source: "Deloitte and The Manufacturing Institute", url: "https://themanufacturinginstitute.org/2-1-million-manufacturing-jobs-could-go-unfilled-by-2030-11330/" },
+      { fact: "The average certified ammonia refrigeration technician in the US is approaching 55 years old, and retirements are outpacing new entrants. That is why this demo puts two retirement-eligible techs on the ammonia system.",
+        source: "Dealing with the Turnover of Ammonia Technicians, NaturalRefrigerants.com", url: "https://naturalrefrigerants.com/dealing-with-the-turnover-of-ammonia-technicians/" },
+      { fact: "More than 70 percent of maintenance teams report being understaffed at least sometimes, and 37 percent say they are chronically understaffed.",
+        source: "Survey of 211 maintenance leaders, reported by Stacker", url: "https://ktvz.com/stacker-small-business/2026/09/08/what-211-maintenance-leaders-said-about-skilled-labor-shortages/" }
     ]
   },
 
   segments: [
     {
       name: "Manufacturing & Logistics",
-      size: 4200,
+      size: 5200,
       skills: [
         { skill: "Line Operations", coverage: 82 },
         { skill: "PLC / Automation Programming", coverage: 34 },
@@ -29,7 +41,7 @@ const SKILLSIGHT_DATA = {
     },
     {
       name: "Retail Sales & Distribution",
-      size: 1300,
+      size: 1500,
       skills: [
         { skill: "Route Sales", coverage: 88 },
         { skill: "DSD Logistics", coverage: 65 },
@@ -39,7 +51,7 @@ const SKILLSIGHT_DATA = {
     },
     {
       name: "Foodservice Sales",
-      size: 450,
+      size: 550,
       skills: [
         { skill: "Foodservice Account Management", coverage: 70 },
         { skill: "Menu / Culinary Consulting", coverage: 29 },
@@ -48,7 +60,7 @@ const SKILLSIGHT_DATA = {
     },
     {
       name: "Corporate",
-      size: 1050,
+      size: 1250,
       skills: [
         { skill: "R&D / Food Science", coverage: 18 },
         { skill: "Data Analytics", coverage: 41 },
@@ -57,6 +69,32 @@ const SKILLSIGHT_DATA = {
         { skill: "HR / Talent Management", coverage: 55 },
         { skill: "Legal / Compliance", coverage: 20 }
       ]
+    }
+  ],
+
+  // Three sample profiles so the tool can be seen from the employee's side,
+  // not only the manager's. Same plan data, same saved checkboxes.
+  employees: [
+    {
+      id: "EMP-1042", name: "Sam K.", role: "Refrigeration Technician", site: "Marshall, MN (Ice Cream)",
+      segment: "Manufacturing & Logistics", years: 14,
+      has: ["Refrigeration & Ammonia Systems", "Line Operations", "Food Safety / HACCP"],
+      learning: ["Lean / Six Sigma"],
+      note: "Holds the ammonia certification. The plant has one other person who does."
+    },
+    {
+      id: "EMP-2071", name: "Dani M.", role: "Maintenance Technician", site: "Salina, KS (Pizza)",
+      segment: "Manufacturing & Logistics", years: 6,
+      has: ["Line Operations", "Packaging Equipment Maintenance", "Food Safety / HACCP"],
+      learning: ["PLC / Automation Programming", "Pizza Line Configuration"],
+      note: "Next in line for the automation work when Sioux Falls opens."
+    },
+    {
+      id: "EMP-3310", name: "Alex T.", role: "Demand Planner", site: "Hopkins, MN (Corporate)",
+      segment: "Corporate", years: 3,
+      has: ["Supply Chain Planning", "Marketing Strategy"],
+      learning: ["Data Analytics"],
+      note: "Already does reporting work by hand, so analytics is the shortest jump."
     }
   ],
 
