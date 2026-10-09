@@ -2,13 +2,13 @@
 
 A tool that shows what skills a workforce has, where those skills are missing, and where a critical one is known by too few people.
 
-Built solo in about 24 hours at **Southwest MN Hacks 2026** (September 12 to 13, Marshall, Minnesota) for **Schwan's Prompt 01: Talent Readiness and Skills Intelligence Platform**. Submitted and demoed on the morning of the 13th. It did not place in the top five, and no judge feedback was given. This repository is the entry as it stood at submission.
+Built solo in about 24 hours at **Southwest MN Hacks 2026** (September 12 to 13, Marshall, Minnesota) for **Schwan's Prompt 01: Talent Readiness and Skills Intelligence Platform**. Submitted and demoed on the morning of the 13th. This repository is the entry as it stood at submission.
 
 ![The overview, annotated](screenshots/overview.png)
 
 ## The challenge
 
-The prompt asked for a solution that helps an organization understand its current workforce capability, find critical gaps, assess future needs, and act on them. It listed five questions the platform should answer:
+Build something that helps an organization understand its current workforce capability, find critical gaps, assess future needs, and act on them. The prompt listed five questions the platform should answer:
 
 1. What skills exist across the workforce today?
 2. What skills will be needed for future business and technology strategies?
@@ -69,7 +69,7 @@ Real and sourced: the four job groups (Schwan's own career areas), the plant and
 
 The workforce size of about 8,500 is a stated assumption, because the company does not publish a headcount and third-party estimates disagree.
 
-During the build every external claim was audited in three passes. Three claims were removed because they could only be traced to vendor blogs, and one factual error was corrected: Sioux Falls is an Asian-style food plant, not a pizza plant. The full audit, with sources, is in [FACTS.md](FACTS.md).
+Every external claim was audited in three passes during the build. Three were removed because they could only be traced to vendor blogs, and one factual error was corrected: Sioux Falls is an Asian-style food plant, not a pizza plant. The full audit, with sources, is in [FACTS.md](FACTS.md).
 
 ## Run it
 
